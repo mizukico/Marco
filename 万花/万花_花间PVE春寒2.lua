@@ -39,7 +39,7 @@ if target.nMoveState == MOVE_STATE.ON_DEATH then return end
 --------------------------↓↓↓↓变量定义区开始↓↓↓↓-------------------------
 
 --初始化钟林全局变量
-if not g_MacroVars.State_714 then
+if not g_MacroVars.State_714 or not player.bFightState then
     g_MacroVars.State_714 = 0
 end
 
@@ -76,9 +76,9 @@ if hpRatio < 0.3 then
 end
 
 --蓝量小于30%对自己释放碧水
-if ManaRatio < 0.3 then
-    if s_util.CastSkill(131,true) then return end
-end
+--if ManaRatio < 0.3 then
+--    if s_util.CastSkill(131,true) then return end
+--end
 
 --按下"Alt"+"Q" 蹑云
 if(IsAltKeyDown() and IsKeyDown("Q")) then
@@ -103,6 +103,12 @@ end
 if IsAltKeyDown() then
 	return
 end
+
+if  MyBuff[412] then s_util.CancelBuff(412) end
+
+if (not TargetBuff[666] or not TargetBuff[711] or not TargetBuff[714]) and bPrepareMe and dwSkillIdMe==2636 and nLeftTimeMe<=0.2 then
+    s_util.StopSkill()
+end
 --------------------------↑↑↑↑应急技能区结束↑↑↑↑-------------------------
 
 --------------------------↓↓↓↓自动位移区开始↓↓↓↓-------------------------
@@ -121,48 +127,53 @@ end
 --------------------------↓↓↓↓输出循环区开始↓↓↓↓-------------------------
 
 --处理dot延迟双钟林问题
-if  (dwSkillId == 714 and nLeftTime > 0.7) or (dwSkillId == 179 and nLeftTime > 0.7) then  --如果在读条且完成70%
+if  dwSkillIdMe == 189 and nLeftTimeMe < 0.5 then  --如果在读条且完成70%
     g_MacroVars.State_714 = 1 	--设置钟林刷新DOT标志
 end
---判定刷新释放 商阳
-if  g_MacroVars.State_714 == 1 then
-    if s_util.CastSkill(180, false)  then g_MacroVars.State_14064 = 0 return end
+if dwSkillIdMe == 179 and nLeftTimeMe < 0.5 then
+    g_MacroVars.State_714 = 2 
 end
 --乱洒后阳明补dot
-if not TargetBuff[714] and g_MacroVars.State_714 == 0 and Mybuff[412] then 
-    if s_util.CastSkill(179,false) then g_MacroVars.State_14064 = 1 return end
+if not TargetBuff[714] and g_MacroVars.State_714 == 0 and MyBuff[2719] then 
+    if s_util.CastSkill(179,false) then return end
 end
 --补兰催dot
-if not TargetBuff[711] then 
+if (not TargetBuff[711] or TargetBuff[711] and TargetBuff[711].nLeftTime < 1 )and g_MacroVars.State_714 ~= 2 then 
     if s_util.CastSkill(190,false) then return end
 end
 --补钟林dot
 if not TargetBuff[714] and g_MacroVars.State_714 == 0 then 
-    if s_util.CastSkill(189,false) then g_MacroVars.State_14064 = 1 return end
+    if s_util.CastSkill(189,false) then return end
+end
+
+--判定刷新释放 商阳
+if  g_MacroVars.State_714 == 1 or g_MacroVars.State_714 == 2 then
+    if s_util.CastSkill(180, false) then
+        g_MacroVars.State_714 = 3 
+        return end
 end
 
 --3毒持续时间>15S且玉石CD 水月乱洒
-if TargetBuff[666] and TargetBuff[666].nLeftTime > 15 and s_util.GetSkillCD(182) > 0 then
-    s_util.CastSkill(136,true)
-    s_util.CastSkill(2645,true)
-    return 
+if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and TargetBuff[711] and TargetBuff[711].nLeftTime > 11 and s_util.GetSkillCD(182) > 2 and s_util.GetSkillCD(182) < 14 then
+    if s_util.CastSkill(136,false) then return end
+    if s_util.CastSkill(2645,false) then return end
 end
 
 --3毒持续时间>15S且无水月BUFF (182) 玉石俱焚
-if TargetBuff[666] and TargetBuff[666].nLeftTime > 15 and not MyBuff[412] then
-    if s_util.CastSkill(182,false) then return end
+if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and TargetBuff[711] and TargetBuff[711].nLeftTime > 11 and not MyBuff[2719] then
+    if s_util.CastSkill(182,false) then g_MacroVars.State_714 = 0  return end
 end
 
 --水月BUFF<8S且在读条快雪时断读条释放 玉石
-if MyBuff[412] and MyBuff[412].nLeftTime < 8 and dwSkillIdMe==2636 and nLeftTimeMe<=0.398 then
-    if s_util.CastSkill(182,false,true) then return end
+if MyBuff[2719] and MyBuff[2719].nLeftTime < 7 and dwSkillIdMe==2636 and nLeftTimeMe<=0.4 then
+    if s_util.CastSkill(182,false,true) then g_MacroVars.State_714 = 0  return end
 end
 
 --满3毒 (2636) 快雪时晴
 if TargetBuff[666] and TargetBuff[711] and TargetBuff[714] then
-    if Mybuff[412] and dwSkillIdMe==2636 and nLeftTimeMe<=0.398 then --水月BUFF期间自断读条
-        if s_util.CastSkill(2636,false,true) then return end
-    else
-        if s_util.CastSkill(2636,false) then return end              --无水月不断读条
-    end
+    if s_util.CastSkill(2636,false) then g_MacroVars.State_714 = 0 return end  
+end
+
+if TargetBuff[666] and TargetBuff[711] and TargetBuff[714] and MyBuff[2719] and MyBuff[2719].nLeftTime > 4  and dwSkillIdMe==2636 and nLeftTimeMe<=0.4 then --水月BUFF期间自断读条
+    if s_util.CastSkill(2636,false,true) then g_MacroVars.State_714 = 0 return end         
 end
