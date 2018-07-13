@@ -1,6 +1,6 @@
 --奇穴：弹指 雪中行 倚天 焚玉 青歌 青冠 春寒 雪弃 生息 梦歌 踏歌 涓流
 --属性：加速要求249
---秘籍：3毒持续时间+3S，阳明、钟林、兰催减读条时间
+--秘籍：3毒持续时间+3S，阳明、钟林、兰催减读条时间，兰催2本减调息时间
 
 --开头必须是这个，先获取自己的对象，没有的话说明还没进入游戏，直接返回
 local player = GetClientPlayer()
@@ -93,10 +93,8 @@ end
 
 --后跳躲珈罗兰猎物
 if MyBuff[13034] and MyBuff[13034].nLeftTime > 2.5 then
-	--打断读条
-	s_util.StopSkill()
-	--后跳
-	if s_util.CastSkill(9007, false) then return end 
+	s_util.StopSkill()  --打断读条
+	if s_util.CastSkill(9007, false) then return end    --后跳
 end
 
 --按下"Alt"停手
@@ -130,7 +128,7 @@ if dwSkillIdMe == 179 and nLeftTimeMe > 0.5 then   --如果在读条阳明
     g_MacroVars.State_714 = 2                      --设置钟林兰催刷新标志
 end
 
---三毒不全打断快雪补兰催
+--三毒不全则在3跳快雪后 补兰催
 if (not TargetBuff[666] or not TargetBuff[711] or not TargetBuff[714]) and dwSkillIdMe == 2636 and nLeftTimeMe < 0.4 then
     if s_util.CastSkill(190,false,true) then return end
 end
@@ -152,9 +150,7 @@ end
 
 --判定兰催钟林刷新 补商阳
 if  g_MacroVars.State_714 == 1 or g_MacroVars.State_714 == 2 then
-    if s_util.CastSkill(180, false) then
-        g_MacroVars.State_714 = 3 
-        return end
+    if s_util.CastSkill(180, false) then g_MacroVars.State_714 = 3 return end
 end
 
 --商阳持续时间>11S且玉石CD 水月乱洒
@@ -168,17 +164,17 @@ if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and not MyBuff[2719] then
     if s_util.CastSkill(182,false) then g_MacroVars.State_714 = 0  return end
 end
 
---乱洒BUFF<7S且在读条快雪时断读条释放 玉石
+--乱洒BUFF<7S在3跳快雪后 玉石
 if MyBuff[2719] and MyBuff[2719].nLeftTime < 7 and dwSkillIdMe == 2636 and nLeftTimeMe < 0.4 then
     if s_util.CastSkill(182,false,true) then g_MacroVars.State_714 = 0  return end
-end
-
---满3毒 快雪时晴
-if TargetBuff[666] and TargetBuff[711] and TargetBuff[714] then
-    if s_util.CastSkill(2636,false) then g_MacroVars.State_714 = 0 return end  
 end
 
 --乱洒BUFF>4S 断读条打3跳快雪
 if MyBuff[2719] and MyBuff[2719].nLeftTime > 4 and dwSkillIdMe == 2636 and nLeftTimeMe < 0.4 then
     if s_util.CastSkill(2636,false,true) then g_MacroVars.State_714 = 0 return end         
+end
+
+--满3毒 快雪时晴
+if TargetBuff[666] and TargetBuff[711] and TargetBuff[714] then
+    if s_util.CastSkill(2636,false) then g_MacroVars.State_714 = 0 return end  
 end
