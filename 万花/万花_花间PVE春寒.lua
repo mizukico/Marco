@@ -177,8 +177,8 @@ if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and s_util.GetSkillCD(2645
     if s_util.CastSkill(182,false) then g_MacroVars.State_714 = 0  return end
 end
 
---乱洒BUFF<=6.5S则3跳快雪后 玉石
-if MyBuff[2719] and MyBuff[2719].nLeftTime <= 6.5 and dwSkillIdMe == 2636 and nLeftTimeMe <= 0.4 then
+--乱洒BUFF<7S则3跳快雪后 玉石
+if MyBuff[2719] and MyBuff[2719].nLeftTime < 7 and dwSkillIdMe == 2636 and nLeftTimeMe <= 0.4 then
     if s_util.CastSkill(182,false,true) then g_MacroVars.State_714 = 0  return end
 end
 
