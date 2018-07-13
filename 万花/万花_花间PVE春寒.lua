@@ -34,15 +34,10 @@ end
 if target then s_util.TurnTo(target.nX,target.nY) end  --调整面向
 
 --如果目标死亡，直接返回
-if target.nMoveState == MOVE_STATE.ON_DEATH then return end
+if target.nMoveState == MOVE_STATE.ON_DEATH then g_MacroVars.State_714 = 0 return end
 --------------------------↑↑↑↑目标处理区结束↑↑↑↑-------------------------
 
 --------------------------↓↓↓↓变量定义区开始↓↓↓↓-------------------------
-
---初始化钟林全局变量，不在战斗状态重置为0
-if not g_MacroVars.State_714 or not player.bFightState then
-    g_MacroVars.State_714 = 0
-end
 
 --定义自己和目标的距离
 local distance = s_util.GetDistance(player, target)	
@@ -67,6 +62,19 @@ local hpRatio = player.nCurrentLife / player.nMaxLife
 
 --定义自己的蓝量比
 local ManaRatio = player.nCurrentMana / player.nMaxMana
+
+--初始化钟林全局变量，不在战斗状态重置为0
+if not g_MacroVars.State_714 or not player.bFightState then
+    g_MacroVars.State_714 = 0
+    g_MacroVars.State_tar = target.dwID
+end
+--切换目标重置钟林全局变量
+if g_MacroVars.State_tar then
+    if g_MacroVars.State_tar ~= target.dwID then
+        g_MacroVars.State_tar = target.dwID
+        g_MacroVars.State_714 = 0
+    end
+end
 --------------------------↑↑↑↑变量定义区结束↑↑↑↑-------------------------
 
 --------------------------↓↓↓↓应急技能区开始↓↓↓↓-------------------------
@@ -77,9 +85,9 @@ if hpRatio < 0.3 then
 end
 
 --蓝量小于30%对自己释放碧水
---if ManaRatio < 0.3 then
---    if s_util.CastSkill(131,true) then return end
---end
+if ManaRatio < 0.3 then
+    if s_util.CastSkill(131,true) then return end
+end
 
 --按下"Alt"+"Q" 蹑云
 if(IsAltKeyDown() and IsKeyDown("Q")) then
@@ -160,7 +168,7 @@ if MyBuff[2719] then
 end
 
 --商阳持续时间>11S且玉石CD 乱洒
-if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and s_util.GetSkillCD(182) > 2 and s_util.GetSkillCD(182) < 16 then
+if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and s_util.GetSkillCD(182) > 2 and s_util.GetSkillCD(182) <=15 then
     if s_util.CastSkill(2645,false) then return end
 end
 
@@ -169,8 +177,8 @@ if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and s_util.GetSkillCD(2645
     if s_util.CastSkill(182,false) then g_MacroVars.State_714 = 0  return end
 end
 
---乱洒BUFF<7S在3跳快雪后 玉石
-if MyBuff[2719] and MyBuff[2719].nLeftTime < 7 and dwSkillIdMe == 2636 and nLeftTimeMe <= 0.4 then
+--乱洒BUFF<=6.5S则3跳快雪后 玉石
+if MyBuff[2719] and MyBuff[2719].nLeftTime <= 6.5 and dwSkillIdMe == 2636 and nLeftTimeMe <= 0.4 then
     if s_util.CastSkill(182,false,true) then g_MacroVars.State_714 = 0  return end
 end
 
