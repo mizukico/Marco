@@ -77,9 +77,9 @@ if hpRatio < 0.3 then
 end
 
 --蓝量小于30%对自己释放碧水
-if ManaRatio < 0.3 then
-    if s_util.CastSkill(131,true) then return end
-end
+--if ManaRatio < 0.3 then
+--    if s_util.CastSkill(131,true) then return end
+--end
 
 --按下"Alt"+"Q" 蹑云
 if(IsAltKeyDown() and IsKeyDown("Q")) then
@@ -129,8 +129,8 @@ if dwSkillIdMe == 179 and nLeftTimeMe > 0.5 then   --如果在读条阳明
     g_MacroVars.State_714 = 2                      --设置钟林兰催刷新标志
 end
 
---三毒不全则在3跳快雪后 补兰催
-if (not TargetBuff[666] or not TargetBuff[711] or not TargetBuff[714]) and dwSkillIdMe == 2636 and nLeftTimeMe < 0.4 then
+--没有商阳或钟林dot后则在4跳快雪后补兰催
+if (not TargetBuff[666] or not TargetBuff[714]) and dwSkillIdMe == 2636 and nLeftTimeMe <= 0.2 then
     if s_util.CastSkill(190,false,true) then return end
 end
 
@@ -140,7 +140,7 @@ if not TargetBuff[714] and g_MacroVars.State_714 == 0 and MyBuff[2719] then
 end
 
 --补兰催dot
-if not TargetBuff[711] and g_MacroVars.State_714 ~= 2 then  --目标无dot且兰催未刷新
+if not TargetBuff[711] and not TargetBuff[666] and g_MacroVars.State_714 ~= 2 then  --目标无dot且兰催未刷新
     if s_util.CastSkill(190,false) then return end
 end
 
@@ -154,28 +154,32 @@ if  g_MacroVars.State_714 == 1 or g_MacroVars.State_714 == 2 then
     if s_util.CastSkill(180, false) then g_MacroVars.State_714 = 3 return end
 end
 
---商阳持续时间>11S且玉石CD 水月乱洒
-if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and s_util.GetSkillCD(182) > 2 and s_util.GetSkillCD(182) < 15 then
+--有乱洒BUFF 水月
+if MyBuff[2719] then 
     if s_util.CastSkill(136,false) then return end
+end
+
+--商阳持续时间>11S且玉石CD 乱洒
+if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and s_util.GetSkillCD(182) > 2 and s_util.GetSkillCD(182) < 16 then
     if s_util.CastSkill(2645,false) then return end
 end
 
---商阳持续时间>11S且无乱洒BUFF 玉石俱焚
-if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and not MyBuff[2719] then
+--商阳持续时间>11S且乱洒CD小于9S 玉石俱焚
+if TargetBuff[666] and TargetBuff[666].nLeftTime > 11 and s_util.GetSkillCD(2645) < 9 then
     if s_util.CastSkill(182,false) then g_MacroVars.State_714 = 0  return end
 end
 
 --乱洒BUFF<7S在3跳快雪后 玉石
-if MyBuff[2719] and MyBuff[2719].nLeftTime < 7 and dwSkillIdMe == 2636 and nLeftTimeMe < 0.4 then
+if MyBuff[2719] and MyBuff[2719].nLeftTime < 7 and dwSkillIdMe == 2636 and nLeftTimeMe <= 0.4 then
     if s_util.CastSkill(182,false,true) then g_MacroVars.State_714 = 0  return end
 end
 
 --乱洒BUFF>4S 断读条打3跳快雪
-if MyBuff[2719] and MyBuff[2719].nLeftTime > 4 and dwSkillIdMe == 2636 and nLeftTimeMe < 0.4 then
-    if s_util.CastSkill(2636,false,true) then g_MacroVars.State_714 = 0 return end         
+if MyBuff[2719] and MyBuff[2719].nLeftTime > 4 and dwSkillIdMe == 2636 and nLeftTimeMe <= 0.4 then
+    if s_util.CastSkill(2636,false,true) then g_MacroVars.State_714 = 0 return end       
 end
 
---满3毒 快雪时晴
-if TargetBuff[666] and TargetBuff[711] and TargetBuff[714] then
+--有钟林+商阳dot 快雪时晴
+if TargetBuff[666] and TargetBuff[714] then
     if s_util.CastSkill(2636,false) then g_MacroVars.State_714 = 0 return end  
 end
