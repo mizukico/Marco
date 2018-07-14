@@ -18,7 +18,7 @@ if player.bFightState and (not target or not IsEnemy(player.dwID, target.dwID) )
 local MinDistance = 20			--最小距离
 local MindwID = 0		    --最近NPC的ID
 for i,v in ipairs(GetAllPlayer()) do		--遍历所有NPC
-	if IsEnemy(player.dwID, v.dwID) and s_util.GetDistance(v, player) < MinDistance then	--如果是敌对，并且距离更小
+	if IsEnemy(player.dwID, v.dwID) and s_util.GetDistance(v, player) < MinDistance and v.nLevel>0 then	--如果是敌对，并且距离更小
 		MinDistance = s_util.GetDistance(v, player)                             
 		MindwID = v.dwID                                                                    --替换距离和ID
 		end
