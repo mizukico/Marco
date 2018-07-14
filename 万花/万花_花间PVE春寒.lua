@@ -107,9 +107,7 @@ if MyBuff[13034] and MyBuff[13034].nLeftTime > 2.5 then
 end
 
 --按下"Alt"停手
-if IsAltKeyDown() then
-	return
-end
+if IsAltKeyDown() then g_MacroVars.State_714 = 0 return end
 
 --取消水月buff，防止阳明瞬发造成dot判定问题
 if MyBuff[412] then s_util.CancelBuff(412) end
