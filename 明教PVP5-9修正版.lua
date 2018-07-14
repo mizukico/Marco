@@ -121,9 +121,9 @@ end
 		end
 	end
 	if    t盾立 < -500  and 自动驱夜==1 then
-		 if f冥月渡心<0 then
+		if f冥月渡心<0 then
 			释放(驱夜)
-		 end
+		end
 	end
 	if	nChenckLS == me then
 		释放(贪墨体)
@@ -184,7 +184,7 @@ if m免控< 0    and SkillAfter(流光) > 3000 and SkillAfter(隐身)> 3000 and SkillA
 	释放(凌霄揽胜)
 	释放(迎风回浪)
 	释放(瑶台枕鹤)
-	 if SkillAfter(后跳)>5000 then
+	if SkillAfter(后跳)>5000 then
 				释放(后跳)
 	 end
 	end 
@@ -308,18 +308,14 @@ if 附近的风车() == 1 then
   end
   if 玩家.nState ~= 浮空 and  bufftimeR(扶摇F)<0 and m贪墨体F < 0  and 技能CD(蹑云逐月)==0   then
 	释放(贪墨体)
-  end
-end 
-
-if m贪墨体F < 0 then 
-		回避风车躲控制()
-end
-if  t风车 == 1 and Distance < 10 and   m贪墨体F < 0  and 技能CD(蹑云逐月)==0   and  bufftimeR(扶摇F)<0  and  玩家.nState ~=浮空 then
-	if cn贪墨体 == 1 then
-		释放(贪墨体)
-	end 
-end
- 
+		end
+	end
+	if m贪墨体F < 0 then 回避风车躲控制() end
+	if  t风车 == 1 and Distance < 10 and   m贪墨体F < 0  and 技能CD(蹑云逐月)==0   and  bufftimeR(扶摇F)<0  and  玩家.nState ~=浮空 then
+		if cn贪墨体 == 1 then
+			释放(贪墨体)
+		end 
+	end
 local t啸如虎=bufftimeT(免伤.啸如虎)
 	if m封内>0  and 技能等级(知我罪我) >0 then
 		控制(幻光步,眩晕,900,2)
@@ -327,12 +323,13 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
     if 目标.nState == 死亡 then  return   end
 	local nState = 目标状态()
 
-   if af流光 < 1000  and GCD==1 and  Distance < 15 then
-	  面对目标()
-   end 
-   if  SkillAfter(冥月渡心)  < 10000 and  Distance < 12  and 风车==0  then
-		  面对目标()
-   end 
+    if af流光 < 1000  and GCD==1 and  Distance < 15 then
+		面对目标()
+	end 
+	
+    if  SkillAfter(冥月渡心)  < 10000 and  Distance < 12  and 风车==0  then
+		面对目标()
+    end 
 	技能前置(魂锁,1000)
 	技能前置(破魔击,1000)
 	技能前置(生死劫,1000)
@@ -352,14 +349,14 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 		end
 	end 
 	
-	 if( 技能触发(银月斩,1000)==1 ) then
+	if( 技能触发(银月斩,1000)==1 ) then
 			模式 =5  --减疗模式
 	end
 	if( 技能触发(赤日轮,2000)==1 ) then
 		模式 =2
 	end 
 	if bufftimeT(盾立)>0 and  bufftimeR(隐身F) < 0 then
-		 return
+		return
 	end 	
 	if t门派 == 霸刀  and Distance < 60   then
 		释放(扶摇)
@@ -384,10 +381,10 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 		end
 		return
 	end
-	 if ISNPC() == 3 then  ---如何是NPC
+	if ISNPC() == 3 then  ---如何是NPC
 		攻击(破魔击)
-	 end 
-	 
+	end 
+	
 	if Distance  > 8 and  技能等级(知我罪我) >0 and Distance <20 and 玩家.满日 ==0 and 玩家.满月==0 then
 			控制(幻光步,眩晕,900,4,20,1)
 	end
@@ -407,7 +404,7 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 		if f明教橙武 > 0 and t免伤 < 0   then
 			攻击(破魔击)
 		end 
-	  if q驱夷逐法==1 then
+	if q驱夷逐法==1 then
 				释放(破魔击)
 			if  SkillAfter(驱夜)<3000 then
 				释放(光明相,1,15)
@@ -418,10 +415,7 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 			if 技能CD(隐身)==0 and 技能CD(光明相)==0 and 技能CD(驱夜)==0 then
 				释放(生灭)
 			end 
-	  end 
-	  -----
-	  
-
+	end 
 	if 模式 ~= 2   and t免伤 <0 then
 		if  玩家.满日 == 1 or 玩家.日灵==10000 then
 
@@ -469,7 +463,7 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 			if f冥月渡心 > 0  or f生灭 > 0   then
 					攻击(破魔击)
 			end 
-	
+
 			if  t马御 < 0   and 可控制减伤BUFF < 0 then
 				if 技能CD(流光)==0  and Distance>9  and t控制==0 then
 					攻击(破魔击)
@@ -546,7 +540,7 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 				end 
 			end		
 			if 目标.nHP < 20  and t啸如虎<0 then
-			 释放(破魔击)
+				释放(破魔击)
 			end 			
 			if t控制==0 and 玩家.nState ~=轻功 then
 				if Distance > 10  and  t马御 <0 then
@@ -620,11 +614,10 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 			end  
 	end 
 	
-	
 	if SkillAfter(冥月渡心)<10000 then
 			释放(驱夜)
 	end
-	 if t读条技能() ~= 千蝶吐瑞 then
+	if t读条技能() ~= 千蝶吐瑞 then
 		if ft梦泉虎跑<0  and   玩家.满日 ~= 1 and 玩家.满月 ~= 1 and t封内< 0 and  t沉默 < 0 and  t控制==0   and  不可控制减伤BUFF < 0  and t免封内 < 0 and ft松烟竹雾<0 and t门派 ~=m丐帮 and SkillAfter(生死劫)>700  and t风车==0  and t门派~=m霸刀 then
 				释放(怖畏暗刑)
 		end
@@ -634,8 +627,7 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 		if ft梦泉虎跑<0  and   玩家.满日 ~= 1 and 玩家.满月 ~= 1 and t封内< 0 and  t沉默 < 0 and  t控制==0   and  不可控制减伤BUFF < 0  and t免封内 < 0 and ft松烟竹雾<0  and SkillAfter(生死劫)>700  and t风车==0 and  ft雪絮金屏 > 0   then
 				释放(怖畏暗刑)
 		end	
-	 end 
-
+	end 
 	if nState==击倒 or nState ==定身 or nState == 锁足 or nState==眩晕 then
 		else
 		if bufftimeT(无名魂锁F)<0  and  可控制减伤BUFF>2000  and f冥月渡心< -500  then
@@ -648,9 +640,9 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 			控制(魂锁,1000)
 		end
 	end
------自动解控  
+	-----自动解控  
 	--	释放(幻光步,1)
-	 if f冥月渡心 < 0  and  m贪墨体F < 0  and SkillAfter(幻光步)>3000  and  m控制== 1 and bufftimeR(377--[[镇山河]])<0 and SkillAfter(隐身)>3000 and SkillAfter(流光) > 3000  and m免控<0  and 目标附近的离手风车()==0 then
+	if f冥月渡心 < 0  and  m贪墨体F < 0  and SkillAfter(幻光步)>3000  and  m控制== 1 and bufftimeR(377--[[镇山河]])<0 and SkillAfter(隐身)>3000 and SkillAfter(流光) > 3000  and m免控<0  and 目标附近的离手风车()==0 then
 		if 玩家.nState == 锁足 then
 			释放(流光)
 		end 
@@ -663,7 +655,7 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 	if   玩家.nState == 后仰 then
 		释放(蹑云逐月)
 	end 	
---------  追击技能 	
+	--------  追击技能 	
 	if   流光追击==1  and  GCD==1  and 目标附近的离手风车()==0 then
 		if Distance > 15 and  af流光> 3000 and t免伤 < 0 and  目标.nState ~= 死亡  and  玩家.满月~=1  and 不可控制减伤BUFF < 0 and  t风车==0  then
 			
@@ -705,7 +697,7 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 			end
 		end 		
 	end 		
------免控衔接 针对丐帮这个职业	
+	-----免控衔接 针对丐帮这个职业	
 	if t门派==m丐帮  and ttisme==1 and  Distance < 8  and SkillAfter(流光) >3000 and SkillAfter(隐身)>4000  then
 		if   m免控 < 0 then
 			攻击(流光)
@@ -728,7 +720,7 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 			攻击(冥月渡心,0,12)  
 		end 	
 	end 
--- 调试信息(劫镖模式,ISNPC())
+	-- 调试信息(劫镖模式,ISNPC())
 	if ISNPC()==4 then
 		if  t免伤<0 and t减伤 <0  then
 			攻击(伏明众生,0,8)
@@ -746,7 +738,6 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 			攻击(冥月渡心,0,12)  
 		end
 	end 
-
 	
 	释放(驱夜)
 	
@@ -826,6 +817,6 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 			释放(幽月轮)
 			释放(赤日轮)
 	if Distance < 50 and bufftimeR(扶摇F)<0   then 
-	 释放(扶摇)
+	释放(扶摇)
 	end 
 end
