@@ -97,7 +97,7 @@ end
 --按下“Alt”+“E” 扶摇跳
 if(IsAltKeyDown() and IsKeyDown("E")) then
 	s_util.CastSkill(9002,true,false)
-	if(playerBuffs[208]) then Jump() end
+	if MyBuff[208] then Jump() end
 end
 
 --后跳躲珈罗兰猎物

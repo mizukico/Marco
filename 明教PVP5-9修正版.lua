@@ -235,7 +235,7 @@ end
 		if  玩家.nHP <70  then
 		if nC繁音急节 ==1  then   ---回避冰心爆发
 			if 预判_剑影留痕 == 1   then
-				 释放(贪墨体)
+				释放(贪墨体)
 			end 
 		end 
 			if nC繁音急节 ==1  then   ---回避冰心爆发
@@ -256,9 +256,9 @@ end
 			end
 		end 
 		if	附近的风车() ==1 then
-		  if bufftimeR(扶摇F)> 0 then
+		if bufftimeR(扶摇F)> 0 then
 			跳(1,1)
-		  end 
+		end 
 		
 		end 
 	end
@@ -765,13 +765,12 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 		end
 	end 
 	if SkillAfter(冥月渡心)<8000 and   SkillAfter(冥月渡心)>1000 then  --------月大的10秒内
-	
 		if 玩家.月灵 >=  玩家.日灵 then
 			释放(银月斩)
-		if 技能CD(银月斩)==0  then
+			if 技能CD(银月斩)==0  then
 				释放(幽月轮)
 			end
-			else
+		else
 			释放(烈日斩)
 			if 技能CD(烈日斩)==0 then
 				释放(赤日轮)
@@ -784,7 +783,7 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 			if 技能CD(银月斩)==0 and 技能CD(驱夜)==0 then
 				释放(幽月轮)
 			end
-			else
+		else
 			释放(烈日斩)
 			if 技能CD(烈日斩)==0 and 技能CD(驱夜)==0 then
 				释放(赤日轮)

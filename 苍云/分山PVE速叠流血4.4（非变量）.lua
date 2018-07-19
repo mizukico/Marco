@@ -42,12 +42,6 @@ end
 
 --非战斗状态
 if not player.bFightState then
-
-  --竞技场换装功能区（待添加）
-  
-  --切换腰坠功能区（请自己修改腰坠状态ID以及腰坠ID，如果只需要切换1个腰坠请自己修改一下）
-
-  --如果没有B腰坠buff,并且B腰坠技能CD<1,并且目标是BOSS切换到B腰坠
   if not MyBuff[3853] and s_util.GetItemCD(8,5147,true) <1 and Strength >3 then
     if s_util.UseEquip(8,5147) then end
   end
