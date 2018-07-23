@@ -11,7 +11,15 @@ if not player.bFightState and not s_util.GetBuffInfo(player)[4052] then
     if s_util.CastSkill(3974, false) then return end
 end
 --------------------↓↓↓↓遍历处理区开始↓↓↓↓--------------------
-
+--判断对象B是否在对象A的扇形面向内
+--参数：对象A,对象B,面向角(角度制)
+local function Is_B_in_A_FaceDirection(pA, pB, agl)
+	local rd = (pA.nFaceDirection%256)*math.pi/128
+    local dx = pB.nX - pA.nX;
+    local dy = pB.nY - pA.nY;
+	local length = math.sqrt(dx*dx+dy*dy);
+    return math.acos(dx/length*math.cos(rd)+dy/length*math.sin(rd)) < agl*math.pi/360;
+end
 
 --------------------↑↑↑↑遍历处理区结束↑↑↑↑--------------------
 --------------------↓↓↓↓目标处理区开始↓↓↓↓--------------------
@@ -82,7 +90,19 @@ local JianShangTar = TargetBuffAll[6163] or TargetBuffAll[3193] or TargetBuffAll
 ----定义自己减伤BUFF
 local JianShangSelf = MyBuff[6163] or MyBuff[3193] or MyBuff[6264] or MyBuff[6257] or MyBuff[3171] or MyBuff[4444] or MyBuff[5744] or MyBuff[6637] or MyBuff[8292] or MyBuff[11319] or MyBuff[368] or MyBuff[367] or MyBuff[384] or MyBuff[399] or MyBuff[3068] or MyBuff[122] or MyBuff[1802] or MyBuff[684] or MyBuff[4439] or MyBuff[6315] or MyBuff[6240] or MyBuff[5996] or MyBuff[6200] or MyBuff[6636] or MyBuff[6262] or MyBuff[2849] or MyBuff[3315] or MyBuff[8279] or MyBuff[8300] or MyBuff[8427] or MyBuff[8291] or MyBuff[2983] or MyBuff[10014]
 --------------------------↑↑↑↑变量定义区结束↑↑↑↑-------------------------
+--与目标距离>8尺使用流光，流光CD使用幻光步
+if distance > 8 then if s_util.CastSkill(3977,false) then return end end --流光
+if distance > 8 then if s_util.CastSkill(3970,false) then return end end --幻光
 
+--判断player是否在target的180°扇形面向内
+if Is_B_in_A_FaceDirection(target, player, 180) or distance > 3.5 then
+    s_util.TurnTo(target.nX,target.nY) 
+    MoveForwardStart()
+end
+if not Is_B_in_A_FaceDirection(target, player, 180) and distance < 3.5 then 
+    MoveForwardStop()
+    s_util.TurnTo(target.nX,target.nY)
+end
 --------------------------↓↓↓↓应急技能区开始↓↓↓↓-------------------------
 
 --回避控制
@@ -119,12 +139,17 @@ if TingShouBuff then return end
 
 --------------------------↓↓↓↓输出循环区开始↓↓↓↓-------------------------
 
+--满日或满月且没有同辉，光明相
+if (player.nSunPowerValue>0 or player.nMoonPowerValue>0) then
+	if s_util.CastSkill(3969,true) then return end
+end
+
 --破魔
 if s_util.CastSkill(3967,false) then return end
 
 
 --日大
-if distance< 8 and not JianShangTa then
+if distance< 6 and not JianShangTar then
     if s_util.CastSkill(18626,false) then return end
 end
 --月大
@@ -135,15 +160,11 @@ end
 --驱夜
 if s_util.CastSkill(3979,false) then return end
 
---银月斩优先月循环上仇
-if CurrentMoon >= CurrentSun and CurrentMoon < 61 then
-    if  s_util.CastSkill(3960,false)  then return end
-end
+--银月斩
+if  s_util.CastSkill(3960,false)  then return end
 
--- 烈日斩，日灵>月灵时释放
-if CurrentSun > CurrentMoon and CurrentSun < 61 then
-    if  s_util.CastSkill(3963,false)  then return end
-end
+--烈日斩
+if  s_util.CastSkill(3963,false)  then return end
 
 -- 日灵大于等于月灵且不满灵时打赤日轮
 if CurrentSun >= CurrentMoon and CurrentSun < 100 then

@@ -14,22 +14,23 @@ end
 
 --»ñÈ¡µ±Ç°Ä¿±ê,Î´½øÕ½Ã»Ä¿±êÖ±½Ó·µ»Ø,Õ½¶·ÖĞÃ»Ä¿±êÑ¡Ôñ×î½üµĞ¶ÔNPC,µ÷ÕûÃæÏò
 local target, targetClass = s_util.GetTarget(player)							
-if not player.bFightState and (not target or not IsEnemy(player.dwID, target.dwID) )then return end 
+if not player.bFightState and (not target or not IsEnemy(player.dwID, target.dwID) )then g_MacroVars.State_714 = 0 return end 
 if player.bFightState and (not target or not IsEnemy(player.dwID, target.dwID) ) then  
-local MinDistance=20	--×îĞ¡¾àÀë
-local MindwID=0		    --×î½üNPCµÄID
-for i,v in ipairs(GetAllNpc()) do		--±éÀúËùÓĞNPC
-    --Èç¹ûµĞ¶Ô²¢ÇÒ¾àÀë¸ü½üÔòÌæ»»¾àÀëºÍID
-	if IsEnemy(player.dwID, v.dwID) and s_util.GetDistance(v, player)<MinDistance and v.nLevel>0 then
-		MinDistance = s_util.GetDistance(v, player)                             
-		MindwID = v.dwID    
-		end
-	end
-if MindwID == 0 then 
-    return                          --Ã»ÓĞµĞ¶ÔNPCÔò·µ»Ø
-else	
-    SetTarget(TARGET.NPC, MindwID)  --Éè¶¨Ä¿±êÎª×î½üµÄµĞ¶ÔNPC                
-end
+    g_MacroVars.State_714 = 0
+    local MinDistance=20	--×îĞ¡¾àÀë
+    local MindwID=0		    --×î½üNPCµÄID
+    for i,v in ipairs(GetAllNpc()) do		--±éÀúËùÓĞNPC
+        --Èç¹ûµĞ¶Ô²¢ÇÒ¾àÀë¸ü½üÔòÌæ»»¾àÀëºÍID
+	    if IsEnemy(player.dwID, v.dwID) and s_util.GetDistance(v, player)<MinDistance and v.nLevel>0 then
+		    MinDistance = s_util.GetDistance(v, player)                             
+	    	MindwID = v.dwID    
+	    	end
+	    end
+    if MindwID == 0 then 
+        return                          --Ã»ÓĞµĞ¶ÔNPCÔò·µ»Ø
+    else	
+        SetTarget(TARGET.NPC, MindwID)  --Éè¶¨Ä¿±êÎª×î½üµÄµĞ¶ÔNPC                
+    end
 end
 if target then s_util.TurnTo(target.nX,target.nY) end  --µ÷ÕûÃæÏò
 
@@ -102,8 +103,7 @@ end
 
 --ºóÌø¶ãçìÂŞÀ¼ÁÔÎï
 if MyBuff[13034] and MyBuff[13034].nLeftTime > 2.5 then
-	s_util.StopSkill()  --´ò¶Ï¶ÁÌõ
-	if s_util.CastSkill(9007, false) then return end    --ºóÌø
+	if s_util.CastSkill(9007,false,true) then return end    --ºóÌø
 end
 
 --°´ÏÂ"Alt"Í£ÊÖ
@@ -128,10 +128,10 @@ end
 --------------------------¡ı¡ı¡ı¡ıÊä³öÑ­»·Çø¿ªÊ¼¡ı¡ı¡ı¡ı-------------------------
 
 --´¦ÀídotÑÓ³ÙË«ÖÓÁÖÎÊÌâ
-if dwSkillIdMe == 189 and nLeftTimeMe > 0.5 then   --Èç¹ûÔÚ¶ÁÌõÖÓÁÖ
+if dwSkillIdMe == 189 and nLeftTimeMe > 0.8 then   --Èç¹ûÔÚ¶ÁÌõÖÓÁÖ
     g_MacroVars.State_714 = 1 	                   --ÉèÖÃÖÓÁÖË¢ĞÂ±êÖ¾
 end
-if dwSkillIdMe == 179 and nLeftTimeMe > 0.5 then   --Èç¹ûÔÚ¶ÁÌõÑôÃ÷
+if dwSkillIdMe == 179 and nLeftTimeMe > 0.8 then   --Èç¹ûÔÚ¶ÁÌõÑôÃ÷
     g_MacroVars.State_714 = 2                      --ÉèÖÃÖÓÁÖÀ¼´ßË¢ĞÂ±êÖ¾
 end
 
@@ -155,9 +155,9 @@ if not TargetBuff[714] and g_MacroVars.State_714 == 0 then  --Ä¿±êÎŞdotÇÒÖÓÁÖÎ´Ë
     if s_util.CastSkill(189,false) then return end
 end
 
---ÅĞ¶¨À¼´ßÖÓÁÖË¢ĞÂ ²¹ÉÌÑô
-if  g_MacroVars.State_714 == 1 or g_MacroVars.State_714 == 2 then
-    if s_util.CastSkill(180, false) then g_MacroVars.State_714 = 3 return end
+--²¹ÉÌÑôdot
+if not TargetBuff[666] then
+    if s_util.CastSkill(180, false) then return end
 end
 
 --ÓĞÂÒÈ÷BUFF Ë®ÔÂ

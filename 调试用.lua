@@ -42,8 +42,7 @@ local function outputTable(t)
     end
     s_Output()
 end
-s_Output(Marco_mingjiao)
-s_Output(s_util.GetTimer("bbb"))
+
 local npc_mjrw = s_util.GetNpc(53233)
 local npc_mjrw2 = s_util.GetNpc(36780)
 local npc_mjrw3 = s_util.GetNpc(36774)
@@ -88,4 +87,3 @@ if npc_mjrw2 then
         s_Output(npc_mjrw3.bFightState)
     end
 
-    
