@@ -464,7 +464,7 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 					攻击(破魔击)
 			end 
 
-			if  t马御 < 0   and 可控制减伤BUFF < 0 then
+			if  t马御244 < 0   and 可控制减伤BUFF < 0 then
 				if 技能CD(流光)==0  and Distance>9  and t控制==0 then
 					攻击(破魔击)
 				end	
@@ -651,10 +651,10 @@ local t啸如虎=bufftimeT(免伤.啸如虎)
 		玩家.nState~=击退2 then
 			释放(幻光步2,4,20,1)
 		end
-	end 
-	if   玩家.nState == 后仰 then
+if   玩家.nState == 后仰 then
 		释放(蹑云逐月)
-	end 	
+	end 		end 
+	
 	--------  追击技能 	
 	if   流光追击==1  and  GCD==1  and 目标附近的离手风车()==0 then
 		if Distance > 15 and  af流光> 3000 and t免伤 < 0 and  目标.nState ~= 死亡  and  玩家.满月~=1  and 不可控制减伤BUFF < 0 and  t风车==0  then

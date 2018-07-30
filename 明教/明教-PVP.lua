@@ -7,10 +7,14 @@ local player = GetClientPlayer()
 if not player then return end
 
 --脱战隐身
-if not player.bFightState and not s_util.GetBuffInfo(player)[4052] then
+if (not player.bFightState and not s_util.GetBuffInfo(player)[4052]) or IsKeyDown("Z") then
     if s_util.CastSkill(3974, false) then return end
 end
---------------------↓↓↓↓遍历处理区开始↓↓↓↓--------------------
+
+--贪魔体下停止追击
+if s_util.GetBuffInfo(player)[4439] then return end
+
+--------------------↓↓↓↓函数声明区开始↓↓↓↓--------------------
 --判断对象B是否在对象A的扇形面向内
 --参数：对象A,对象B,面向角(角度制)
 local function Is_B_in_A_FaceDirection(pA, pB, agl)
@@ -21,27 +25,94 @@ local function Is_B_in_A_FaceDirection(pA, pB, agl)
     return math.acos(dx/length*math.cos(rd)+dy/length*math.sin(rd)) < agl*math.pi/360;
 end
 
---------------------↑↑↑↑遍历处理区结束↑↑↑↑--------------------
+--定义判断风车函数
+--参数:需要判断的角色
+--返回值：若在需判断的角色10尺内有离手风车返回1，10尺内有读条风车或项王返回2，没有返回false
+local function fengche(tar) 
+    local npc = s_util.GetNpc(57739,30)
+    local me = GetClientPlayer()
+    if npc and IsEnemy(me.dwID, npc.dwID) and s_util.GetDistance(tar, npc) <=10 then
+        return 1
+    end
+    for i,v in ipairs(GetAllPlayer()) do		--遍历
+        local  bPrepare, dwSkillId = GetSkillOTActionState(v)
+        if IsEnemy(me.dwID, v.dwID) and (dwSkillId ==1645 or dwSkillId ==16381) then
+            local dis = s_util.GetDistance(tar, v)
+            if dis <=10 then return 2 end
+        end
+    end
+    return false
+end
+
+--爆发
+local BaoFa = s_tBuffFunc.BaoFa
+--减疗
+local JianLiao = s_tBuffFunc.JianLiao
+--禁疗
+local JinLiao = s_tBuffFunc.JinLiao
+--无敌
+local WuDi = s_tBuffFunc.WuDi
+--沉默
+local ChenMo = s_tBuffFunc.ChenMo
+--免控
+local MianKong = s_tBuffFunc.MianKong
+--减伤
+local JianShang = s_tBuffFunc.JianShang
+--减速
+local JianSu = s_tBuffFunc.JianSu
+--眩晕
+local XuanYun = s_tBuffFunc.XuanYun
+--锁足
+local SuoZu = s_tBuffFunc.SuoZu
+--定身
+local DingShen = s_tBuffFunc.DingShen
+--闪避
+local ShanBi = s_tBuffFunc.ShanBi
+--封轻功
+local FengQingGong = s_tBuffFunc.FengQingGong
+--------------------↑↑↑↑函数声明区结束↑↑↑↑--------------------
+
 --------------------↓↓↓↓目标处理区开始↓↓↓↓--------------------
 
 --获取当前目标,未进战没目标直接返回,战斗中没目标选择最近敌对NPC,调整面向
-local target, targetClass = s_util.GetTarget(player)							
-if not player.bFightState and (not target or not IsEnemy(player.dwID, target.dwID)) and targetClass~=TARGET.PLAYER then return end
-if player.bFightState and (not target or not IsEnemy(player.dwID, target.dwID) ) or targetClass~=TARGET.PLAYER then  
-local MinDistance = 20		
-local MindwID = 0		    
-for i,v in ipairs(GetAllPlayer()) do		--遍历
-	if IsEnemy(player.dwID, v.dwID) and s_util.GetDistance(v, player) < MinDistance then
-		MinDistance = s_util.GetDistance(v, player)
-		MindwID = v.dwID
-		end
-	end
-if MindwID == 0 then 
-    return
+--按下"F"可选择NPC
+local target, targetClass = s_util.GetTarget(player)	
+if IsKeyDown("F") then	
+    if not player.bFightState and (not target or not IsEnemy(player.dwID, target.dwID) )then return end
+    if player.bFightState and (not target or not IsEnemy(player.dwID, target.dwID) ) then  
+        local MinDistance = 20			--最小距离
+        local MindwID = 0		    --最近NPC的ID
+        for i,v in ipairs(GetAllNpc()) do		--遍历所有NPC
+            if IsEnemy(player.dwID, v.dwID) and s_util.GetDistance(v, player) < MinDistance and v.nLevel>0 then
+                MinDistance = s_util.GetDistance(v, player)   
+                MindwID = v.dwID     --替换距离和ID
+            end
+        end
+        if MindwID == 0 then 
+            return --没有敌对NPC则返回
+        else	
+            SetTarget(TARGET.NPC, MindwID)
+        end
+    end
 else
-    SetTarget(TARGET.PLAYER, MindwID)  --设定目标
+    if not player.bFightState and (not target or not IsEnemy(player.dwID, target.dwID)) and targetClass~=TARGET.PLAYER then return end
+    if player.bFightState and (not target or not IsEnemy(player.dwID, target.dwID) ) or targetClass~=TARGET.PLAYER or target.nMoveState == MOVE_STATE.ON_DEATH then  
+        local MinDistance = 20		
+        local MindwID = 0		    
+        for i,v in ipairs(GetAllPlayer()) do		--遍历
+            if IsEnemy(player.dwID, v.dwID) and s_util.GetDistance(v, player) < MinDistance and v.nMoveState ~= MOVE_STATE.ON_DEATH then
+                MinDistance = s_util.GetDistance(v, player)
+                MindwID = v.dwID
+            end
+        end
+        if MindwID == 0 then 
+            return
+        else
+            SetTarget(TARGET.PLAYER, MindwID)  --设定目标
+        end
+    end
 end
-end
+local target, targetClass = s_util.GetTarget(player)
 if target then s_util.TurnTo(target.nX,target.nY) end  --调整面向
 
 --如果目标死亡，直接返回
@@ -71,59 +142,85 @@ local bPrepareMe, dwSkillIdMe, dwLevelMe, nLeftTimeMe, nActionStateMe =  GetSkil
 --定义自己的血量比
 local hpRatio = player.nCurrentLife / player.nMaxLife
 
+--定义目标的血量比
+local thpRatio = target.nCurrentLife / target.nMaxLife
+
 --简化日月能量
 local CurrentSun=player.nCurrentSunEnergy/100
 local CurrentMoon=player.nCurrentMoonEnergy/100
 
---定义需停手的BUff 无名魂锁，南风吐月，镇山河，雷霆震怒，盾立
-local TingShouBuff = TargetBuffAll[4871] or TargetBuffAll[9934] or TargetBuffAll[377] or TargetBuffAll[682] or TargetBuffAll[8303] or TargetBuffAll[9534] or TargetBuffAll[961] or TargetBuffAll[3425] or TargetBuffAll[11151]
-
---定义自身免控buff 蛊虫狂暴,蛊虫狂暴2,秘影,迷心蛊,镇山河,超然,隐身
-local MianKongSelf = MyBuff[2840] or MyBuff[2830] or MyBuff[12665] or MyBuff[6247] or MyBuff[377] or MyBuff[4468] or MyBuff[12492] or MyBuff[4421]
-
---定义自身免伤BUFF 
-local MianShangSelf = MyBuff[8303] or MyBuff[9534] or MyBuff[377] or MyBuff[961] or MyBuff[772] or MyBuff[9934] or MyBuff[12492]
-
---定义目标减伤BUFF
-local JianShangTar = TargetBuffAll[6163] or TargetBuffAll[3193] or TargetBuffAll[6264] or TargetBuffAll[6257] or TargetBuffAll[3171] or TargetBuffAll[4444] or TargetBuffAll[5744] or TargetBuffAll[6637] or TargetBuffAll[8292] or TargetBuffAll[11319] or TargetBuffAll[368] or TargetBuffAll[367] or TargetBuffAll[384] or TargetBuffAll[399] or TargetBuffAll[3068] or TargetBuffAll[122] or TargetBuffAll[1802] or TargetBuffAll[684] or TargetBuffAll[4439] or TargetBuffAll[6315] or TargetBuffAll[6240] or TargetBuffAll[5996] or TargetBuffAll[6200] or TargetBuffAll[6636] or TargetBuffAll[6262] or TargetBuffAll[2849] or TargetBuffAll[3315] or TargetBuffAll[8279] or TargetBuffAll[8300] or TargetBuffAll[8427] or TargetBuffAll[8291] or TargetBuffAll[2983] or TargetBuffAll[10014]
-
-----定义自己减伤BUFF
-local JianShangSelf = MyBuff[6163] or MyBuff[3193] or MyBuff[6264] or MyBuff[6257] or MyBuff[3171] or MyBuff[4444] or MyBuff[5744] or MyBuff[6637] or MyBuff[8292] or MyBuff[11319] or MyBuff[368] or MyBuff[367] or MyBuff[384] or MyBuff[399] or MyBuff[3068] or MyBuff[122] or MyBuff[1802] or MyBuff[684] or MyBuff[4439] or MyBuff[6315] or MyBuff[6240] or MyBuff[5996] or MyBuff[6200] or MyBuff[6636] or MyBuff[6262] or MyBuff[2849] or MyBuff[3315] or MyBuff[8279] or MyBuff[8300] or MyBuff[8427] or MyBuff[8291] or MyBuff[2983] or MyBuff[10014]
+--风车
+local tfengche = fengche(target)
+local mefengche = fengche(player)
 --------------------------↑↑↑↑变量定义区结束↑↑↑↑-------------------------
---与目标距离>8尺使用流光，流光CD使用幻光步
-if distance > 8 then if s_util.CastSkill(3977,false) then return end end --流光
-if distance > 8 then if s_util.CastSkill(3970,false) then return end end --幻光
 
---判断player是否在target的180°扇形面向内
-if Is_B_in_A_FaceDirection(target, player, 180) or distance > 3.5 then
-    s_util.TurnTo(target.nX,target.nY) 
-    MoveForwardStart()
+--------------------------↓↓↓↓追击位移区开始↓↓↓↓-------------------------
+
+--与目标距离>8尺,战斗中且目标附近无风车 使用流光，流光CD使用幻光步
+if not tfengche and not mefengche and IsEnemy(player.dwID, target.dwID) and not WuDi(target) then
+    if distance > 8 and player.bFightState then if s_util.CastSkill(3977,false) then return end end --流光
+    if distance > 8 and player.bFightState then if s_util.CastSkill(3970,false) then return end end --幻光
+
+    --追击+托马斯
+    if (Is_B_in_A_FaceDirection(target, player, 180) or distance > 3.5) then
+        s_util.TurnTo(target.nX,target.nY) 
+        MoveForwardStart()
+    else
+        MoveForwardStop()
+        s_util.TurnTo(target.nX,target.nY)
+    end
 end
-if not Is_B_in_A_FaceDirection(target, player, 180) and distance < 3.5 then 
-    MoveForwardStop()
-    s_util.TurnTo(target.nX,target.nY)
-end
+--------------------------↑↑↑↑追击位移区结束↑↑↑↑-------------------------
+
 --------------------------↓↓↓↓应急技能区开始↓↓↓↓-------------------------
 
 --回避控制
-if not MianKongSelf and not MianShangSelf then 
+if not MianKong(player) and not WuDi(player) then 
     if s_util.GetTimer("tkongzhi1")>0 and s_util.GetTimer("tkongzhi1")<1000 then
         if s_util.CastSkill(9004, false) or s_util.CastSkill(9005, false) or s_util.CastSkill(9006, false) or s_util.CastSkill(9007, false) then
             return
         end
     end
+    if s_util.GetTimer("tkongzhi2")>0 and s_util.GetTimer("tkongzhi2")<1000 and  not tfengche then
+        if s_util.CastSkill(3977, false) then return end
+    end
     if s_util.GetTimer("tkongzhi2")>0 and s_util.GetTimer("tkongzhi2")<1000 then
-        if s_util.CastSkill(3977, false) or s_util.CastSkill(3973, false) or s_util.CastSkill(9004, false) or s_util.CastSkill(9005, false) or s_util.CastSkill(9006, false) or s_util.CastSkill(9007, false) then
+        if s_util.CastSkill(3973, false) or s_util.CastSkill(3977, false) or s_util.CastSkill(3973, false) or s_util.CastSkill(9004, false) or s_util.CastSkill(9005, false) or s_util.CastSkill(9006, false) or s_util.CastSkill(9007, false) then
             return
         end
     end
 end
 
 --回避伤害
-if not JianShangSelf and not MianShangSelf and not MyBuff[12491] and not MyBuff[4052] then
-    if s_util.GetTimer("tkongzhi2")>0 and s_util.GetTimer("tkongzhi2")<1500 then
+if not JianShang(player) and not WuDi(player) and not MyBuff[12491] and not MyBuff[4052] then
+    --防月大，紫气，擒龙，乱洒
+    if s_util.GetTimer("tbaofa1")>0 and hpRatio < 0.7 and thpRatio>0.3 and s_util.GetTimer("tbaofa1")<1500 then
         if s_util.CastSkill(3973,true) then return end
     end
+    --防隐身追命
+    if s_util.GetTimer("tbaofa3")>3000 and s_util.GetTimer("tbaofa3")<5000 then
+        if s_util.CastSkill(3973,true) then return end
+    end
+    --防梵音
+    if s_util.GetTimer("tbaofa2")>0 and s_util.GetTimer("tbaofa2")<5000 and thpRatio>0.3 and MyBuff[2920] then
+        if s_util.CastSkill(3973,true) then return end
+    end
+    --敌方无敌时开减伤
+    if WuDi(target) and hpRatio < 0.75 then
+        if s_util.CastSkill(3973,true) then return end
+    end
+end
+
+--回避风车，读条风车优先扶摇跳，离手风车直接蹑云贪墨
+if mefengche==2 and not WuDi(player) then
+    if MyBuff[208] then 
+        s_util.Jump()
+    else
+        if s_util.CastSkill(9003,false) or s_util.CastSkill(3973,true) then return end
+    end
+end
+if mefengche==1 and not WuDi(player) then
+        if s_util.CastSkill(9003,false) or s_util.CastSkill(3973,true) then return end
 end
 
 --自动扶摇
@@ -131,47 +228,99 @@ if distance< 50 and not MyBuff[208] then
 	if s_util.CastSkill(9002,true) then return end
 end
 
+--被顿蹑云
+if player.nMoveState == MOVE_STATE.ON_SKILL_MOVE_DST then
+    if s_util.CastSkill(9003,false) then return end
+end 	
+
+--自动吃鸡大药
+if hpRatio < 0.4 and s_util.GetItemCount(5, 29036) > 1 and s_util.GetItemCD (5, 29036, true) < 0.5 then
+    s_util.UseItem(5,29036)
+end
+--判断盾立buff刷新停手
+if s_util.GetTimer("dunli") > 0 and s_util.GetTimer("dunli") < 1500 then OutputWarningMessage("MSG_WARNING_RED", "盾立停手") s_util.StopSkill() return end
 --停手
-if TingShouBuff then return end
+if WuDi(target) then OutputWarningMessage("MSG_WARNING_RED", "目标无敌") s_util.StopSkill() return end
+
+--月大保命
+if distance< 12 and hpRatio < 0.7 then
+    if s_util.CastSkill(18629,false) then return end
+end
 
 --------------------------↑↑↑↑应急技能区结束↑↑↑↑-------------------------
 
 
 --------------------------↓↓↓↓输出循环区开始↓↓↓↓-------------------------
 
+--[[隐身魂锁
+if not MianKong(target) and not WuDi(target) and MyBuff[4052] and not IsKeyDown("F") then
+    if s_util.CastSkill(4910,false) then return end 
+end--]]
+
+if s_util.GetSkillCD(3978) > 115 and not MyBuff[4052] then
+    if s_util.CastSkill(3974, false) then return end
+end
+
+if  s_util.GetSkillCD(3974) > 10 and  s_util.GetSkillCD(3979) > 2 and s_util.GetSkillCD(3975) > 2 and not ChenMo(target) then
+    if s_util.CastSkill(3978, false) then return end
+end
+
+--无免控 沉默 眩晕 无敌就释放缴械
+if not MianKong(target) and not ChenMo(target) and not XuanYun(target) and not WuDi(target) and not IsKeyDown("F") then
+    if s_util.CastSkill(3975,false) then return end 
+end
+
 --满日或满月且没有同辉，光明相
-if (player.nSunPowerValue>0 or player.nMoonPowerValue>0) then
+if (player.nSunPowerValue>0) then
 	if s_util.CastSkill(3969,true) then return end
+end
+
+--按下"G"不打生死劫，破魔爆发
+if not IsKeyDown("G") and s_util.GetTalentIndex(7)==4 then
+    --日劫减疗
+    if player.nSunPowerValue >0 and not JianLiao(target) and not JinLiao(target) then
+        if s_util.CastSkill(3966,false) then return end 
+    end
+end
+
+--日劫眩晕
+if player.nSunPowerValue >0 and not MianKong(target) and not ChenMo(target) and not XuanYun(target) and not SuoZu(target) and not DingShen(target) and not IsKeyDown("G") then
+    if s_util.CastSkill(3966,false) then return end 
+end
+
+--日大
+if distance< 6 and not JianShang(target) and s_util.GetSkillCD(18629) > 2 and CurrentMoon < 100 then
+    if s_util.CastSkill(18626,false) then return end
+end
+
+--月大
+if distance< 12 and not JianShang(target) and player.nMoonPowerValue >0 then
+    if s_util.CastSkill(18629,false) then return end
 end
 
 --破魔
 if s_util.CastSkill(3967,false) then return end
 
-
---日大
-if distance< 6 and not JianShangTar then
-    if s_util.CastSkill(18626,false) then return end
-end
---月大
-if distance< 12 and not JianShangTar then
-    if s_util.CastSkill(18629,false) then return end
-end
-
 --驱夜
-if s_util.CastSkill(3979,false) then return end
+if CurrentMoon < 100 and CurrentSun < 100 then
+    if s_util.CastSkill(3979,false) then return end
+end
 
 --银月斩
-if  s_util.CastSkill(3960,false)  then return end
-
+if CurrentMoon < 100 and CurrentSun < 100 then
+    if s_util.CastSkill(3960,false) then return end
+end
 --烈日斩
-if  s_util.CastSkill(3963,false)  then return end
+if CurrentMoon < 100 and CurrentSun < 100 then
+    if s_util.CastSkill(3963,false) then return end
+end
 
--- 日灵大于等于月灵且不满灵时打赤日轮
-if CurrentSun >= CurrentMoon and CurrentSun < 100 then
+--日灵大于月灵且不满灵时打赤日轮
+if CurrentSun > CurrentMoon and CurrentSun < 100 then
     if  s_util.CastSkill(3962,false)  then return end
 end
 
---月灵大于日灵且不满灵时打幽月轮
-if CurrentSun < CurrentMoon and CurrentMoon < 100 then
+--月灵大于等于日灵且不满灵时打幽月轮
+if CurrentSun <= CurrentMoon and CurrentMoon < 100 then
     if s_util.CastSkill(3959,false) then return end
 end
