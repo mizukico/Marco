@@ -216,7 +216,7 @@ if mefengche==1 and not WuDi(player) then
 end
 
 --被封内后转身蹑云
-if ChenMo(player) and  ChenMo(player).nLeftTime > 2000 then 
+if ChenMo(player) and ChenMo(player).nLeftTime > 2000 then 
     ChFace(128)
     if MyBuff[208] then 
         s_util.Jump()
