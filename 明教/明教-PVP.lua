@@ -276,11 +276,6 @@ if  s_util.GetSkillCD(3974) > 10 and  s_util.GetSkillCD(3979) > 2 and s_util.Get
     if s_util.CastSkill(3978, false) then return end
 end
 
---无免控 沉默 眩晕 无敌就释放缴械
-if not MianKong(target) and not ChenMo(target) and target.nMoveState ~= MOVE_STATE.ON_HALT and not WuDi(target) and not IsKeyDown("F") then
-    if s_util.CastSkill(3975,false) then return end 
-end
-
 --满日或满月且没有同辉，光明相
 if (player.nSunPowerValue>0) then
 	if s_util.CastSkill(3969,true) then return end
@@ -311,6 +306,11 @@ end
 
 --破魔
 if s_util.CastSkill(3967,false) then return end
+
+--无免控 沉默 眩晕 无敌就释放缴械
+if not MianKong(target) and not ChenMo(target) and target.nMoveState ~= MOVE_STATE.ON_HALT and not WuDi(target) and not IsKeyDown("F") then
+    if s_util.CastSkill(3975,false) then return end 
+end
 
 --驱夜
 if CurrentMoon < 100 and CurrentSun < 100 then
