@@ -300,7 +300,7 @@ if player.nSunPowerValue >0 and not MianKong(target) and (not ChenMo(target) or 
 end
 
 --»’¥Û
-if distance< 6 and not JianShang(target) and CurrentMoon < 100 then
+if distance< 6 and not JianShang(target) and CurrentMoon < 100 and s_util.GetSkillCD(18629) > 2 then
     if s_util.CastSkill(18626,false) then return end
 end
 
