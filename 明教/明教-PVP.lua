@@ -187,19 +187,19 @@ end
 if not JianShang(player) and not WuDi(player) and not MyBuff[12491] and not MyBuff[4052] then
     --防月大，紫气，擒龙，乱洒
     if s_util.GetTimer("tbaofa1")>0 and hpRatio < 0.7 and thpRatio>0.3 and s_util.GetTimer("tbaofa1")<1500 then
-        if s_util.CastSkill(3973,true) then s_Output("回避伤害") return end
+        if s_util.CastSkill(3973,true) then s_Output("回避爆发") return end
     end
     --防隐身追命
     if s_util.GetTimer("tbaofa3")>3000 and s_util.GetTimer("tbaofa3")<5000 then
-        if s_util.CastSkill(3973,true) then s_Output("回避伤害") return end
+        if s_util.CastSkill(3973,true) then s_Output("回避隐身追命") return end
     end
     --防梵音
     if s_util.GetTimer("tbaofa2")>0 and s_util.GetTimer("tbaofa2")<5000 and thpRatio>0.3 and MyBuff[2920] then
-        if s_util.CastSkill(3973,true) then s_Output("回避伤害") return end
+        if s_util.CastSkill(3973,true) then s_Output("回避梵音") return end
     end
     --敌方无敌时开减伤
     if WuDi(target) and hpRatio < 0.75 then
-        if s_util.CastSkill(3973,true) then s_Output("回避伤害") return end
+        if s_util.CastSkill(3973,true) then s_Output("回避无敌") return end
     end
 end
 
@@ -221,7 +221,7 @@ if ChenMo(player) and ChenMo(player).nLeftTime > 2000 then
     if MyBuff[208] then 
         s_util.Jump()
     else
-        if s_util.CastSkill(9003,false) then return end
+        if s_util.CastSkill(9003,false) then s_Output("回避封内") return end
     end
 end
 
@@ -239,6 +239,7 @@ end
 if hpRatio < 0.4 and s_util.GetItemCount(5, 29036) > 1 and s_util.GetItemCD (5, 29036, true) < 0.5 then
     s_util.UseItem(5,29036)
 end
+
 --判断盾立buff刷新停手
 if s_util.GetTimer("dunli") > 0 and s_util.GetTimer("dunli") <= 1500 then OutputWarningMessage("MSG_WARNING_RED", "盾立停手") s_util.StopSkill() return end
 
@@ -265,10 +266,10 @@ if not MianKong(target) and not WuDi(target) and TargetBuffAll[244] then
     if s_util.CastSkill(4910,false) then return end 
 end
 
---生灭后隐身
+--[[生灭后隐身
 if s_util.GetSkillCD(3978) > 115 and not MyBuff[4052] then
     if s_util.CastSkill(3974, false) then return end
-end
+end--]]
 
 --隐身，驱夜，缴械全部CD时生灭
 if  s_util.GetSkillCD(3974) > 10 and  s_util.GetSkillCD(3979) > 2 and s_util.GetSkillCD(3975) > 2 and not ChenMo(target) then
@@ -276,7 +277,7 @@ if  s_util.GetSkillCD(3974) > 10 and  s_util.GetSkillCD(3979) > 2 and s_util.Get
 end
 
 --无免控 沉默 眩晕 无敌就释放缴械
-if not MianKong(target) and not ChenMo(target) and not XuanYun(target) and not WuDi(target) and not IsKeyDown("F") then
+if not MianKong(target) and not ChenMo(target) and target.nMoveState ~= MOVE_STATE.ON_HALT and not WuDi(target) and not IsKeyDown("F") then
     if s_util.CastSkill(3975,false) then return end 
 end
 
@@ -289,13 +290,13 @@ end
 if not IsKeyDown("F") and s_util.GetTalentIndex(7)==4 then
     --日劫减疗
     if player.nSunPowerValue >0 and not JianLiao(target) and not JinLiao(target) then
-        if s_util.CastSkill(3966,false) then return end 
+        if s_util.CastSkill(3966,false) then s_Output("日劫减疗") return end 
     end
 end
 
 --日劫眩晕
-if player.nSunPowerValue >0 and not MianKong(target) and not ChenMo(target) and not XuanYun(target) and not SuoZu(target) and not DingShen(target) and not IsKeyDown("F") then
-    if s_util.CastSkill(3966,false) then return end 
+if player.nSunPowerValue >0 and not MianKong(target) and (not ChenMo(target) or ChenMo(target).nLeftTime<1000) and (not XuanYun(target) or XuanYun(target).nLeftTime<1000) and not SuoZu(target) and not DingShen(target) and not IsKeyDown("F") then
+    if s_util.CastSkill(3966,false) then s_Output("日劫眩晕") return end 
 end
 
 --日大
@@ -314,6 +315,15 @@ if s_util.CastSkill(3967,false) then return end
 --驱夜
 if CurrentMoon < 100 and CurrentSun < 100 then
     if s_util.CastSkill(3979,false) then return end
+end
+
+--银月斩
+if CurrentMoon < 100 and CurrentSun < 100 and CurrentSun < CurrentMoon then
+    if s_util.CastSkill(3960,false) then return end
+end
+--烈日斩
+if CurrentMoon < 100 and CurrentSun < 100 and CurrentSun > CurrentMoon then
+    if s_util.CastSkill(3963,false) then return end
 end
 
 --银月斩

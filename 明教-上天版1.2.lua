@@ -154,48 +154,42 @@ local 预判_剑破虚空,预判_剑破虚空ID = 预判敌对技能(剑破虚空,8000,20,冰心,"禅那",
 
         --核弹爆发
 
-        if ISNPC() == 4 and 技能等级(14698) == 1 and t免封内 <0 then
-        if SkillAfter(生灭予夺) > 1500 then
-		释放(怖畏暗刑) 
-        end
-        if SkillAfter(怖畏暗刑) < 1300 then
-		释放(光明相,1)
-	end        
-        if SkillAfter(光明相) < 1300 then
-                释放(烈日斩)
-	end
-        if SkillAfter(烈日斩) < 1500 then
-		释放(驱夜断愁)
-	end 
-        if SkillAfter(驱夜断愁) < 1500 then
-		释放(伏明众生)
-	end 
-        if SkillAfter(伏明众生) < 3000 and SkillAfter(光明相) < 9000 then
-		释放(净世破魔击)
-	end
-        if bufftimeT(6365) >0 and SkillAfter(生灭予夺) > 7000 and SkillAfter(暗尘弥散) > 2000 and SkillAfter(光明相) < 9000 then
-                释放(暗尘弥散)
-        end
-        if SkillAfter(暗尘弥散) < 999 and SkillAfter(净世破魔击) < 3000 then
-		释放(生灭予夺)
-	end
-        if SkillAfter(生灭予夺) < 1500 then
-		释放(怖畏暗刑)
-	end
-        if SkillAfter(怖畏暗刑) < 1300 and SkillAfter(光明相) > 1500 then
-		释放(驱夜断愁)
-	end
-        if SkillAfter(生灭予夺) > 888 and SkillAfter(生灭予夺) < 9000 then
-		释放(净世破魔击) 
-		释放(驱夜断愁)
-		释放(银月斩)
-                释放(烈日斩)
-	end
-        if 脱战瞬间() == 1 then
-	if f隐身 <0 and f冥月渡心 <0 then
-		释放(暗尘弥散)
-	end
-        end
+	if ISNPC() == 4 and 技能等级(14698) == 1 and t免封内 <0 then
+        	if SkillAfter(生灭予夺) > 1500 then 释放(怖畏暗刑) end
+        	if SkillAfter(怖畏暗刑) < 1300 then 释放(光明相,1) end        
+        	if SkillAfter(光明相) < 1300 then 释放(烈日斩) end
+        	if SkillAfter(烈日斩) < 1500 then
+			释放(驱夜断愁)
+		end 
+        	if SkillAfter(驱夜断愁) < 1500 then
+			释放(伏明众生)
+		end 
+        	if SkillAfter(伏明众生) < 3000 and SkillAfter(光明相) < 9000 then
+			释放(净世破魔击)
+		end
+        	if bufftimeT(6365) >0 and SkillAfter(生灭予夺) > 7000 and SkillAfter(暗尘弥散) > 2000 and SkillAfter(光明相) < 9000 then
+         	       释放(暗尘弥散)
+        	end
+        	if SkillAfter(暗尘弥散) < 999 and SkillAfter(净世破魔击) < 3000 then
+			释放(生灭予夺)
+		end
+        	if SkillAfter(生灭予夺) < 1500 then
+			释放(怖畏暗刑)
+		end
+        	if SkillAfter(怖畏暗刑) < 1300 and SkillAfter(光明相) > 1500 then
+			释放(驱夜断愁)
+		end
+        	if SkillAfter(生灭予夺) > 888 and SkillAfter(生灭予夺) < 9000 then
+			释放(净世破魔击) 
+			释放(驱夜断愁)
+			释放(银月斩)
+			释放(烈日斩)
+		end
+        	if 脱战瞬间() == 1 then
+			if f隐身 <0 and f冥月渡心 <0 then
+				释放(暗尘弥散)
+			end
+        	end
                 return 0
 	end 
 
