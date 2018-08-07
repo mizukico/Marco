@@ -29,25 +29,6 @@ local function Is_B_in_A_FaceDirection(pA, pB, agl)
     return math.acos(dx/length*math.cos(rd)+dy/length*math.sin(rd)) < agl*math.pi/360;
 end
 
---判断25尺内是否有敌对治疗职业
-local function NearHoly()
-    local me = GetClientPlayer()
-    local Holy = {
-        [10176] = "补天"，
-        [10448] = "相知"，
-        [10028] = "离经"，
-        [10080] = "云裳"，
-    }
-    for i,v in ipairs(GetAllPlayer()) do		--遍历
-        local kungfu = v.GetKungfuMount().dwSkillID
-        local dis = s_util.GetDistance(me, v)
-        if v.nMoveState ~= MOVE_STATE.ON_DEATH and IsEnemy(me.dwID, v.dwID) and Holy[kungfu] and dis<25 then
-            return true
-        end
-    end
-    return false
-end
-
 --爆发
 local BaoFa = s_tBuffFunc.BaoFa
 --减疗
@@ -158,9 +139,40 @@ local CurrentSun=player.nCurrentSunEnergy/100
 local CurrentMoon=player.nCurrentMoonEnergy/100
 
 --风车
-local tfengche = s_tBuffFunc.FengChe(target)
-local mefengche = s_tBuffFunc.FengChe(player)
+local tfengche = nil
+local mefengche = nil
+
+--附近治疗
+local near_zhiliao = nil
 --------------------------↑↑↑↑变量定义区结束↑↑↑↑-------------------------
+
+--------------------------↓↓↓↓遍历处理区开始↓↓↓↓-------------------------
+
+local npc = s_util.GetNpc(57739, 30) --获取30尺内的离手风车
+local me = GetClientPlayer()
+local Holy = {[10176] = "补天", [10448] = "相知", [10028] = "离经", [10080] = "云裳" }
+if npc and IsEnemy(me.dwID, npc.dwID) then
+    if s_util.GetDistance(me, npc) <=10 then mefengche = 1 end
+    if s_util.GetDistance(target, npc) <=10 then tfengche = 1 end
+end
+
+for i,v in ipairs(GetAllPlayer()) do	--遍历周围玩家
+    local bPrepare,dwSkillId = GetSkillOTActionState(v)
+    local kungfu = v.GetKungfuMount().dwSkillID
+    local disme = s_util.GetDistance(me, v)
+    local distar = s_util.GetDistance(target, v)
+    if IsEnemy(me.dwID, v.dwID) and v.nMoveState ~= MOVE_STATE.ON_DEATH then
+        if dwSkillId == 1645 or dwSkillId == 16381 then --判断读条风车
+            if disme <= 10 then mefengche = 2 end
+            if distar <= 10 then tfengche = 2 end
+        end
+        if not near_zhiliao and Holy[kungfu] and disme < 25 then --判断25尺内的敌方治疗
+            near_zhiliao = 1
+        end
+    end
+end
+
+--------------------------↑↑↑↑遍历处理区结束↑↑↑↑-------------------------
 
 --------------------------↓↓↓↓追击位移区开始↓↓↓↓-------------------------
 
@@ -219,12 +231,16 @@ if not JianShang(player) and not WuDi(player) and not MyBuff[12491] and not MyBu
         if s_util.CastSkill(3973,true) then s_Output("回避梵音") return end
     end
     --敌方无敌时开减伤
-    if WuDi(target) and hpRatio < 0.75 then
+    if WuDi(target) and hpRatio < 0.70 then
         if s_util.CastSkill(3973,true) then s_Output("回避无敌") return end
     end
 end
 
 --回避风车，读条风车优先扶摇跳，离手风车直接蹑云贪墨
+if mefengche==1 and not WuDi(player) then
+    ChFace(128)
+    if s_util.CastSkill(9003,false) or s_util.CastSkill(3973,true) then return end
+end
 if mefengche==2 and not WuDi(player) then
     if MyBuff[208] then 
         s_util.Jump()
@@ -233,16 +249,14 @@ if mefengche==2 and not WuDi(player) then
         if s_util.CastSkill(9003,false) or s_util.CastSkill(3973,true) then return end
     end
 end
-if mefengche==1 and not WuDi(player) then
-    ChFace(128)
-    if s_util.CastSkill(9003,false) or s_util.CastSkill(3973,true) then return end
-end
 
 --被封内后转身蹑云
 if ChenMo(player) and ChenMo(player).nLeftTime > 2000 and distance < 4 then 
     ChFace(128) --改变面向180°
     if MyBuff[208] then 
+        s_Output("回避封内")
         s_util.Jump()
+        return
     else
         if s_util.CastSkill(9003,false) then s_Output("回避封内") return end
     end
@@ -318,11 +332,9 @@ if (player.nSunPowerValue>0) then
 end
 
 --按下"F"不打生死劫，破魔爆发
-if (not IsKeyDown("G") or not IsKeyDown("F"))and s_util.GetTalentIndex(7)==4 and targetClass==TARGET.PLAYER and NearHoly() then
-    --日劫减疗
-    if player.nSunPowerValue >0 and not JianLiao(target) and not JinLiao(target) then
-        if s_util.CastSkill(3966,false) then s_Output("日劫减疗") return end 
-    end
+--日劫减疗,按下G不挂减疗
+if s_util.GetTalentIndex(7)==4 and player.nSunPowerValue >0 and not JianLiao(target) and not JinLiao(target)  and targetClass==TARGET.PLAYER and near_zhiliao and (not IsKeyDown("G") or not IsKeyDown("F")) then
+    if s_util.CastSkill(3966,false) then s_Output("日劫减疗") return end 
 end
 
 --日劫眩晕
