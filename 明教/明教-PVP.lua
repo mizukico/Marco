@@ -1,24 +1,23 @@
 
 ---还有隐身自己手动，没有写隐身自动解控
 --脚本说明("奇穴适用 \n  [[血泪成悦][日月凌天][燎原烈火][善法肉身|超凡入圣][恶秽满路][辉耀红尘][善恶如梦][超然物外][天地诛戮][秘影诡行][伏明众生][冥月渡心]  \n  \n 增加减疗模式，此模式针对超凡入圣奇穴写的，可以上减疗(按下银月斩后就会进入减疗模式，按下破魔击或者生死劫就会切换回来普通的输出模式  \n  \n 如果需要手动流光，推荐在门派设置那里关闭流光追击，因为脚本的自动流光可以有效的回避某些职业的控制 \n 更新日记  3/26 修复隐身BUG导致脚本发呆问题 ")
---todo 防嘲讽 预判函数 改变面向函数
+--todo 防嘲讽 预判函数
 
 --开头必须是这个，先获取自己的对象，没有的话说明还没进入游戏，直接返回
 local player = GetClientPlayer()
 if not player then return end
 
+--龙门跳伞
+if s_util.CastSkill(18876, false) then return end
+
 --脱战隐身
-if (not player.bFightState and not s_util.GetBuffInfo(player)[4052]) or IsKeyDown("Z") then
+if (not player.bFightState and not s_util.GetBuffInfo(player)[4052] or IsKeyDown("Z")) and not IsAltKeyDown() then
     if s_util.CastSkill(3974, false) then return end
 end
 
 --贪魔体下停止追击
 if s_util.GetBuffInfo(player)[4439] then return end
 
-if IsKeyDown("T") then
-    SetTarget(TARGET.PLAYER, player.dwID)
-    if s_util.CastSkill(18633,false) then return end 
-end
 --------------------↓↓↓↓函数声明区开始↓↓↓↓--------------------
 --判断对象B是否在对象A的扇形面向内
 --参数：对象A,对象B,面向角(角度制)
@@ -28,6 +27,25 @@ local function Is_B_in_A_FaceDirection(pA, pB, agl)
     local dy = pB.nY - pA.nY;
 	local length = math.sqrt(dx*dx+dy*dy);
     return math.acos(dx/length*math.cos(rd)+dy/length*math.sin(rd)) < agl*math.pi/360;
+end
+
+--判断25尺内是否有敌对治疗职业
+local function NearHoly()
+    local me = GetClientPlayer()
+    local Holy = {
+        [10176] = "补天"，
+        [10448] = "相知"，
+        [10028] = "离经"，
+        [10080] = "云裳"，
+    }
+    for i,v in ipairs(GetAllPlayer()) do		--遍历
+        local kungfu = v.GetKungfuMount().dwSkillID
+        local dis = s_util.GetDistance(me, v)
+        if v.nMoveState ~= MOVE_STATE.ON_DEATH and IsEnemy(me.dwID, v.dwID) and Holy[kungfu] and dis<25 then
+            return true
+        end
+    end
+    return false
 end
 
 --爆发
@@ -56,6 +74,8 @@ local DingShen = s_tBuffFunc.DingShen
 local ShanBi = s_tBuffFunc.ShanBi
 --封轻功
 local FengQingGong = s_tBuffFunc.FengQingGong
+--免封内
+local MianFengNei = s_tBuffFunc.MianFengNei
 --改变面向
 local ChFace = s_tBuffFunc.ChFace
 --------------------↑↑↑↑函数声明区结束↑↑↑↑--------------------
@@ -145,9 +165,10 @@ local mefengche = s_tBuffFunc.FengChe(player)
 --------------------------↓↓↓↓追击位移区开始↓↓↓↓-------------------------
 
 --与目标距离>8尺,战斗中且目标附近无风车 使用流光，流光CD使用幻光步
-if not tfengche and not mefengche and IsEnemy(player.dwID, target.dwID) and not WuDi(target) then
+if not tfengche and not mefengche and IsEnemy(player.dwID, target.dwID) and not WuDi(target) and not IsAltKeyDown() then
     if distance > 8 and player.bFightState then if s_util.CastSkill(3977,false) then return end end --流光
     if distance > 8 and player.bFightState then if s_util.CastSkill(3970,false) then return end end --幻光
+    if distance > 8 and player.bFightState then if s_util.CastSkill(18633,false) then return end end --幻光
 
     --追击+托马斯
     if not IsKeyDown("W") then
@@ -208,16 +229,18 @@ if mefengche==2 and not WuDi(player) then
     if MyBuff[208] then 
         s_util.Jump()
     else
+        ChFace(128)
         if s_util.CastSkill(9003,false) or s_util.CastSkill(3973,true) then return end
     end
 end
 if mefengche==1 and not WuDi(player) then
-        if s_util.CastSkill(9003,false) or s_util.CastSkill(3973,true) then return end
+    ChFace(128)
+    if s_util.CastSkill(9003,false) or s_util.CastSkill(3973,true) then return end
 end
 
 --被封内后转身蹑云
-if ChenMo(player) and ChenMo(player).nLeftTime > 2000 then 
-    ChFace(128)
+if ChenMo(player) and ChenMo(player).nLeftTime > 2000 and distance < 4 then 
+    ChFace(128) --改变面向180°
     if MyBuff[208] then 
         s_util.Jump()
     else
@@ -241,10 +264,13 @@ if hpRatio < 0.4 and s_util.GetItemCount(5, 29036) > 1 and s_util.GetItemCD (5, 
 end
 
 --判断盾立buff刷新停手
-if s_util.GetTimer("dunli") > 0 and s_util.GetTimer("dunli") <= 1500 then OutputWarningMessage("MSG_WARNING_RED", "盾立停手") s_util.StopSkill() return end
+if s_util.GetTimer("dunli") > 0 and s_util.GetTimer("dunli") <= 1500 then OutputWarningMessage("MSG_WARNING_RED", "盾立停手",1) s_util.StopSkill() return end
 
---停手
-if WuDi(target) then OutputWarningMessage("MSG_WARNING_RED", "目标无敌") s_util.StopSkill() return end
+--无敌停手并输出警告
+if WuDi(target) then 
+    OutputWarningMessage("MSG_WARNING_RED", "目标无敌-"..Table_GetBuffName(WuDi(target).dwID, WuDi(target).nLevel),1)
+    return 
+end
 
 --月大保命
 if distance< 12 and hpRatio < 0.7 then
@@ -266,23 +292,33 @@ if not MianKong(target) and not WuDi(target) and TargetBuffAll[244] then
     if s_util.CastSkill(4910,false) then return end 
 end
 
---[[生灭后隐身
-if s_util.GetSkillCD(3978) > 115 and not MyBuff[4052] then
+--无免封内 无敌 沉默 眩晕 且目标非丐帮，双刀霸刀就释放缴械
+if not MianFengNei(target) and (not ChenMo(target) or ChenMo(target).nLeftTime<500) and target.nMoveState ~= MOVE_STATE.ON_HALT and not WuDi(target) and target.dwForceID ~= FORCE_TYPE.GAI_BANG and  target.nPoseState ~= POSE_TYPE.DOUBLE_BLADE and not IsKeyDown("F") then
+    if s_util.CastSkill(3975,false) then return end 
+end
+
+--生灭后隐身
+if s_util.SkillTimer(3978) < 1000 and not MyBuff[4052] then
     if s_util.CastSkill(3974, false) then return end
-end--]]
+end
+
+--如果目标血量少于50,并且缴械CD大于5秒,重置缴械cd	
+if  thpRatio < 0.5 and s_util.GetSkillCD(3975) > 5 and target.dwForceID ~= FORCE_TYPE.GAI_BANG and  target.nPoseState ~= POSE_TYPE.DOUBLE_BLADE then
+    if s_util.CastSkill(3978, false) then return end
+end
 
 --隐身，驱夜，缴械全部CD时生灭
 if  s_util.GetSkillCD(3974) > 10 and  s_util.GetSkillCD(3979) > 2 and s_util.GetSkillCD(3975) > 2 and not ChenMo(target) then
     if s_util.CastSkill(3978, false) then return end
 end
 
---满日或满月且没有同辉，光明相
+--满日且没有同辉，光明相
 if (player.nSunPowerValue>0) then
 	if s_util.CastSkill(3969,true) then return end
 end
 
 --按下"F"不打生死劫，破魔爆发
-if not IsKeyDown("F") and s_util.GetTalentIndex(7)==4 then
+if (not IsKeyDown("G") or not IsKeyDown("F"))and s_util.GetTalentIndex(7)==4 and targetClass==TARGET.PLAYER and NearHoly() then
     --日劫减疗
     if player.nSunPowerValue >0 and not JianLiao(target) and not JinLiao(target) then
         if s_util.CastSkill(3966,false) then s_Output("日劫减疗") return end 
@@ -290,12 +326,12 @@ if not IsKeyDown("F") and s_util.GetTalentIndex(7)==4 then
 end
 
 --日劫眩晕
-if player.nSunPowerValue >0 and not MianKong(target) and (not ChenMo(target) or ChenMo(target).nLeftTime<1000) and (not XuanYun(target) or XuanYun(target).nLeftTime<1000) and not SuoZu(target) and not DingShen(target) and not IsKeyDown("F") then
+if player.nSunPowerValue >0 and not MianKong(target) and (not ChenMo(target) or ChenMo(target).nLeftTime<500) and (not XuanYun(target) or XuanYun(target).nLeftTime<500) and not SuoZu(target) and not DingShen(target) and not IsKeyDown("F") and targetClass==TARGET.PLAYER then
     if s_util.CastSkill(3966,false) then s_Output("日劫眩晕") return end 
 end
 
 --日大
-if distance< 6 and not JianShang(target) and CurrentMoon < 100 and s_util.GetSkillCD(18629) > 2 then
+if distance< 6 and not JianShang(target) and s_util.GetSkillCD(18629) > 2 then
     if s_util.CastSkill(18626,false) then return end
 end
 
@@ -306,11 +342,6 @@ end
 
 --破魔
 if s_util.CastSkill(3967,false) then return end
-
---无免控 沉默 眩晕 无敌就释放缴械
-if not MianKong(target) and not ChenMo(target) and target.nMoveState ~= MOVE_STATE.ON_HALT and not WuDi(target) and not IsKeyDown("F") then
-    if s_util.CastSkill(3975,false) then return end 
-end
 
 --驱夜
 if CurrentMoon < 100 and CurrentSun < 100 then
