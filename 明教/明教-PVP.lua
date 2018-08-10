@@ -1,7 +1,10 @@
 
----还有隐身自己手动，没有写隐身自动解控
---脚本说明("奇穴适用 \n  [[血泪成悦][日月凌天][燎原烈火][善法肉身|超凡入圣][恶秽满路][辉耀红尘][善恶如梦][超然物外][天地诛戮][秘影诡行][伏明众生][冥月渡心]  \n  \n 增加减疗模式，此模式针对超凡入圣奇穴写的，可以上减疗(按下银月斩后就会进入减疗模式，按下破魔击或者生死劫就会切换回来普通的输出模式  \n  \n 如果需要手动流光，推荐在门派设置那里关闭流光追击，因为脚本的自动流光可以有效的回避某些职业的控制 \n 更新日记  3/26 修复隐身BUG导致脚本发呆问题 ")
---todo 防嘲讽 预判函数
+--奇穴适用 [-][-][-][-][-][-][-][-][天地诛戮/生灭予夺][-][伏明众生][冥月渡心]
+--不支持驱夷核弹，默认只对玩家施放技能，要攻击NPC需按下"F"键
+--第7个奇穴选择善恶如梦会在25尺有敌对治疗时自动减疗，不需要可按住"G"取消减疗模式
+--非战斗状态下自动隐身，按住“Alt”取消自动隐身，没有写隐身自动解控，按住“Z”可强制隐身
+--默认自动日劫眩晕控制，不需要可按住"F"打破魔爆发
+--默认战斗状态下自动追击绕背，按住“Alt”取消
 
 --开头必须是这个，先获取自己的对象，没有的话说明还没进入游戏，直接返回
 local player = GetClientPlayer()
@@ -102,10 +105,9 @@ else
     end
 end
 local target, targetClass = s_util.GetTarget(player)
-if target then s_util.TurnTo(target.nX,target.nY) end  --调整面向
 
---如果目标死亡，直接返回
-if target.nMoveState == MOVE_STATE.ON_DEATH then return end
+--如果没有目标或目标死亡，直接返回
+if not target or target.nMoveState == MOVE_STATE.ON_DEATH then return end
 --------------------------↑↑↑↑目标处理区结束↑↑↑↑-------------------------
 
 --------------------------↓↓↓↓变量定义区开始↓↓↓↓-------------------------
@@ -150,24 +152,32 @@ local near_zhiliao = nil
 
 local npc = s_util.GetNpc(57739, 30) --获取30尺内的离手风车
 local me = GetClientPlayer()
-local Holy = {[10176] = "补天", [10448] = "相知", [10028] = "离经", [10080] = "云裳" }
+local zhiliao_kungfu = {[10176] = "补天", [10448] = "相知", [10028] = "离经", [10080] = "云裳" }
 if npc and IsEnemy(me.dwID, npc.dwID) then
     if s_util.GetDistance(me, npc) <=10 then mefengche = 1 end
     if s_util.GetDistance(target, npc) <=10 then tfengche = 1 end
 end
 
 for i,v in ipairs(GetAllPlayer()) do	--遍历周围玩家
-    local bPrepare,dwSkillId = GetSkillOTActionState(v)
-    local kungfu = v.GetKungfuMount().dwSkillID
     local disme = s_util.GetDistance(me, v)
-    local distar = s_util.GetDistance(target, v)
-    if IsEnemy(me.dwID, v.dwID) and v.nMoveState ~= MOVE_STATE.ON_DEATH then
+    if  disme < 25 and v.nMoveState ~= MOVE_STATE.ON_DEATH and IsEnemy(me.dwID, v.dwID) then
+        local distar = s_util.GetDistance(target, v)
+        local bPrepare,dwSkillId = GetSkillOTActionState(v)
         if dwSkillId == 1645 or dwSkillId == 16381 then --判断读条风车
             if disme <= 10 then mefengche = 2 end
             if distar <= 10 then tfengche = 2 end
         end
-        if not near_zhiliao and Holy[kungfu] and disme < 25 then --判断25尺内的敌方治疗
-            near_zhiliao = 1
+        if not near_zhiliao then --判断25尺内的敌方治疗
+            if v.dwMountKungfuID then
+                if zhiliao_kungfu[v.dwMountKungfuID] then
+                    near_zhiliao = 1
+                end
+            else
+                local kungfu = v.GetKungfuMount()
+                if kungfu and zhiliao_kungfu[kungfu.dwSkillID] then
+                    near_zhiliao = 1
+                end
+            end	
         end
     end
 end
@@ -175,6 +185,11 @@ end
 --------------------------↑↑↑↑遍历处理区结束↑↑↑↑-------------------------
 
 --------------------------↓↓↓↓追击位移区开始↓↓↓↓-------------------------
+
+--调整面向
+if target and not tfengche and not mefengche and IsEnemy(player.dwID, target.dwID) and not WuDi(target) and not IsAltKeyDown() then 
+    s_util.TurnTo(target.nX,target.nY) 
+end
 
 --与目标距离>8尺,战斗中且目标附近无风车 使用流光，流光CD使用幻光步
 if not tfengche and not mefengche and IsEnemy(player.dwID, target.dwID) and not WuDi(target) and not IsAltKeyDown() then
@@ -327,13 +342,13 @@ if  s_util.GetSkillCD(3974) > 10 and  s_util.GetSkillCD(3979) > 2 and s_util.Get
 end
 
 --满日且没有同辉，光明相
-if (player.nSunPowerValue>0) then
+if (player.nSunPowerValue>0) and player.bFightState then
 	if s_util.CastSkill(3969,true) then return end
 end
 
 --按下"F"不打生死劫，破魔爆发
 --日劫减疗,按下G不挂减疗
-if s_util.GetTalentIndex(7)==4 and player.nSunPowerValue >0 and not JianLiao(target) and not JinLiao(target)  and targetClass==TARGET.PLAYER and near_zhiliao and (not IsKeyDown("G") or not IsKeyDown("F")) then
+if s_util.GetTalentIndex(7)==4 and player.nSunPowerValue >0 and not JianLiao(target) and not JinLiao(target)  and targetClass==TARGET.PLAYER and near_zhiliao and not MyBuff[4052] and (not IsKeyDown("G") or not IsKeyDown("F")) then
     if s_util.CastSkill(3966,false) then s_Output("日劫减疗") return end 
 end
 
@@ -343,7 +358,7 @@ if player.nSunPowerValue >0 and not MianKong(target) and (not ChenMo(target) or 
 end
 
 --日大
-if distance< 6 and not JianShang(target) and s_util.GetSkillCD(18629) > 2 then
+if distance< 6 and not JianShang(target) and s_util.GetSkillCD(18629) > 2 and player.bFightState then
     if s_util.CastSkill(18626,false) then return end
 end
 
@@ -352,7 +367,7 @@ if distance< 12 and not JianShang(target) and player.nMoonPowerValue >0 then
     if s_util.CastSkill(18629,false) then return end
 end
 
---破魔
+--破魔 
 if s_util.CastSkill(3967,false) then return end
 
 --驱夜

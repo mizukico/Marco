@@ -3,23 +3,16 @@ local player = GetClientPlayer()
 --目标对象
 local target = s_util.GetTarget(player)
 
-s_util.UseEquip(7, 37483)
-s_util.UseItem(5, 24779)
-if target then
-    s_Output("目标："..tostring(target.nMoveState))
-    s_Output(target.dwTeamID)
-    s_Output("装总分："..tostring(target.GetTotalEquipScore()))
-    s_Output("装基分："..tostring(target.GetBaseEquipScore()))
-    s_Output("东主："..tostring(target.nBattleFieldSide))
-    s_Output("活动奖励："..tostring(target.nActivityAward))
-end
 
-s_Output("自己："..tostring(player.nMoveState))
-s_Output(player.dwTeamID)
-s_Output("装总分："..tostring(player.GetTotalEquipScore()))
-s_Output("装基分："..tostring(player.GetBaseEquipScore()))
-s_Output("东主："..tostring(player.nBattleFieldSide))
-s_Output("活动奖励："..tostring(player.nActivityAward))
+s_util.UseItem(5, 24779)
+--[[if target then
+    s_Output("目标："..tostring(target.szName))
+    s_Output("目标心法："..tostring(near_zhiliao1))
+    s_Output("目标装总分："..tostring(target.GetTotalEquipScore()))
+    s_Output("目标装基分："..tostring(target.GetBaseEquipScore()))
+    s_Output("目标活动奖励："..tostring(target.nActivityAward))
+    GetClientTeam().SetTeamMark(1, target.dwID)
+end--]]
 
 local MinDistance = 20		
 local MindwID = 0
