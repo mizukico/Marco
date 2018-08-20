@@ -4,7 +4,7 @@ local player = GetClientPlayer()
 local target = s_util.GetTarget(player)
 
 
-s_util.UseItem(5, 24779)
+--s_util.UseItem(5, 24779)
 --[[if target then
     s_Output("目标："..tostring(target.szName))
     s_Output("目标心法："..tostring(near_zhiliao1))
@@ -21,6 +21,11 @@ for i,v in ipairs(GetAllPlayer()) do		--遍历
     if IsEnemy(player.dwID, v.dwID) and s_util.GetDistance(v, player) < MinDistance and v.nMoveState ~= MOVE_STATE.ON_DEATH and v.nCurrentLife < MinHp then
         MinHp = v.nCurrentLife
         MindwID = v.dwID
+    end
+    local Buff = s_util.GetBuffInfo(v)
+    if  Buff and Buff[112] then
+        local fID = Buff[112].dwSkillSrcID
+        s_Output(tostring(v.szName).."("..tostring(v.dwID)..")的清心Buff，来源于："..tostring(fID))
     end
 end
 if MindwID == 0 then 
