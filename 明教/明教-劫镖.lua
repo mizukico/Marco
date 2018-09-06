@@ -6,10 +6,10 @@
 --默认自动日劫眩晕控制，不需要可按住"F"打破魔爆发
 --默认战斗状态下自动追击绕背，按住“Alt”取消
 
---开头必须是这个，先获取自己的对象，没有的话说明还没进入游戏，直接返回
 --龙门跳伞
 s_util.Cast(18876, false)
 
+--开头必须是这个，先获取自己的对象，没有的话说明还没进入游戏，直接返回
 local player = GetClientPlayer()
 if not player then return end
 
@@ -192,10 +192,10 @@ if target and not tfengche and not mefengche and IsEnemy(player.dwID, target.dwI
 end
 
 --与目标距离>8尺,战斗中且目标附近无风车 使用流光，流光CD使用幻光步
+if not s_util.GetTalentIndex(12)==2 then 
 if not tfengche and not mefengche and IsEnemy(player.dwID, target.dwID) and not WuDi(target) and not IsAltKeyDown() then
-    if distance > 8 and player.bFightState then if s_util.Cast(3977,false) then return end end --流光
-    if distance > 8 and player.bFightState then if s_util.Cast(3970,false) then return end end --幻光
-    if distance > 8 and player.bFightState then if s_util.Cast(18633,false) then return end end --幻光
+    if distance > 8 and player.bFightState then if s_util.Cast(3970,false) then return end end--幻光
+    if distance > 8 and player.bFightState then if s_util.Cast(18633,false) then return end end--幻光
 
     --追击+托马斯
     if not IsKeyDown("W") then
@@ -208,6 +208,7 @@ if not tfengche and not mefengche and IsEnemy(player.dwID, target.dwID) and not 
         end
     end
 end
+end
 --------------------------↑↑↑↑追击位移区结束↑↑↑↑-------------------------
 
 --------------------------↓↓↓↓应急技能区开始↓↓↓↓-------------------------
@@ -215,19 +216,25 @@ end
 --回避控制
 if not MianKong(player) and not WuDi(player) then 
     if s_util.GetTimer("tkongzhi1")>0 and s_util.GetTimer("tkongzhi1")<1000 then
-        if s_util.Cast(9004, false) or s_util.Cast(9005, false) or s_util.Cast(9006, false) or s_util.Cast(9007, false) then
-            s_Output("回避控制")
-            return
-        end
+        s_util.Cast(9004, false)
+		s_util.Cast(9005, false)
+		s_util.Cast(9006, false)
+		s_util.Cast(9007, false)
+        s_Output("回避控制")
     end
     if s_util.GetTimer("tkongzhi2")>0 and s_util.GetTimer("tkongzhi2")<1000 and not tfengche then
-        if s_util.Cast(3977, false) then s_Output("回避控制") return end
+        s_util.Cast(3977, false) 
+        s_Output("回避控制")
     end
     if s_util.GetTimer("tkongzhi2")>0 and s_util.GetTimer("tkongzhi2")<1000 then
-        if s_util.Cast(3973, false) or s_util.Cast(3977, false) or s_util.Cast(3973, false) or s_util.Cast(9004, false) or s_util.Cast(9005, false) or s_util.Cast(9006, false) or s_util.Cast(9007, false) then
-            s_Output("回避控制")
-            return
-        end
+        s_util.Cast(3973, false)
+		s_util.Cast(3977, false)
+		s_util.Cast(3973, false)
+		s_util.Cast(9004, false) 
+		s_util.Cast(9005, false)
+		s_util.Cast(9006, false)
+		s_util.Cast(9007, false)
+        s_Output("回避控制")
     end
 end
 
@@ -235,33 +242,39 @@ end
 if not JianShang(player) and not WuDi(player) and not MyBuff[12491] and not MyBuff[4052] then
     --防月大，紫气，擒龙，乱洒
     if s_util.GetTimer("tbaofa1")>0 and hpRatio < 0.7 and thpRatio>0.3 and s_util.GetTimer("tbaofa1")<1500 then
-        if s_util.Cast(3973,true) then s_Output("回避爆发") return end
+        s_util.Cast(3973,true) 
+        s_Output("回避爆发")
     end
     --防隐身追命
     if s_util.GetTimer("tbaofa3")>3000 and s_util.GetTimer("tbaofa3")<5000 then
-        if s_util.Cast(3973,true) then s_Output("回避隐身追命") return end
+        s_util.Cast(3973,true) 
+        s_Output("回避隐身追命")
     end
     --防梵音
     if s_util.GetTimer("tbaofa2")>0 and s_util.GetTimer("tbaofa2")<5000 and thpRatio>0.3 and MyBuff[2920] then
-        if s_util.Cast(3973,true) then s_Output("回避梵音") return end
+        s_util.Cast(3973,true) 
+        s_Output("回避梵音")
     end
     --敌方无敌时开减伤
     if WuDi(target) and hpRatio < 0.70 then
-        if s_util.Cast(3973,true) then s_Output("回避无敌") return end
+        s_util.Cast(3973,true) 
+        s_Output("回避无敌")
     end
 end
 
 --回避风车，读条风车优先扶摇跳，离手风车直接蹑云贪墨
 if mefengche==1 and not WuDi(player) then
     ChFace(128)
-    if s_util.Cast(9003,false) or s_util.Cast(3973,true) then return end
+    s_util.Cast(9003,false)
+	s_util.Cast(3973,true)
 end
 if mefengche==2 and not WuDi(player) then
     if MyBuff[208] then 
         s_util.Jump()
     else
         ChFace(128)
-        if s_util.Cast(9003,false) or s_util.Cast(3973,true) then return end
+        s_util.Cast(9003,false)
+		s_util.Cast(3973,true)
     end
 end
 
@@ -273,13 +286,16 @@ if ChenMo(player) and ChenMo(player).nLeftTime > 2000 and distance < 4 then
         s_util.Jump()
         return
     else
-        if s_util.Cast(9003,false) then s_Output("回避封内") return end
+        s_util.Cast(9003,false)
+        s_Output("回避封内")
     end
 end
 
 --自动扶摇
+if not s_util.GetTalentIndex(12)==2 then 
 if distance< 50 and not MyBuff[208] then
 	s_util.Cast(9002,true)
+end
 end
 
 --被顿蹑云
@@ -310,7 +326,7 @@ end
 
 
 --------------------------↓↓↓↓输出循环区开始↓↓↓↓-------------------------
-
+if not  s_util.GetTalentIndex(12)==2 then 
 --魂锁天策虎
 if not MianKong(target) and not WuDi(target) and TargetBuffAll[203] and  thpRatio<0.2 and not MyBuff[12491] then
     s_util.Cast(4910,false)
@@ -320,25 +336,22 @@ end
 if not MianKong(target) and not WuDi(target) and TargetBuffAll[244] then
     s_util.Cast(4910,false)
 end
+end
 
 --无免封内 无敌 沉默 眩晕 且目标非丐帮，双刀霸刀就释放缴械
 if not MianFengNei(target) and (not ChenMo(target) or ChenMo(target).nLeftTime<500) and target.nMoveState ~= MOVE_STATE.ON_HALT and not WuDi(target) and target.dwForceID ~= FORCE_TYPE.GAI_BANG and  target.nPoseState ~= POSE_TYPE.DOUBLE_BLADE and not IsKeyDown("F") then
-    s_util.Cast(3975,false)
+	s_util.Cast(3975,false)
 end
 
---生灭后隐身
-if s_util.SkillTimer(3978) < 1000 and not MyBuff[4052] then
-    s_util.Cast(3974, false)
-end
-
---如果目标血量少于50,并且缴械CD大于5秒,重置缴械cd	
+--[[如果目标血量少于50,并且缴械CD大于5秒,重置缴械cd	
 if  thpRatio < 0.5 and s_util.GetSkillCD(3975) > 5 and target.dwForceID ~= FORCE_TYPE.GAI_BANG and  target.nPoseState ~= POSE_TYPE.DOUBLE_BLADE then
+	s_util.Cast(3979,false)
     s_util.Cast(3978, false)
-end
+end--]]
 
 --隐身，驱夜，缴械全部CD时生灭
 if  s_util.GetSkillCD(3974) > 10 and  s_util.GetSkillCD(3979) > 2 and s_util.GetSkillCD(3975) > 2 and not ChenMo(target) then
-    s_util.Cast(3978, false)
+	s_util.Cast(3978, false)
 end
 
 --满日且没有同辉，光明相
@@ -348,19 +361,21 @@ end
 
 --按下"F"不打生死劫，破魔爆发
 --日劫减疗,按下G不挂减疗
-if s_util.GetTalentIndex(7)==4 and player.nSunPowerValue >0 and not JianLiao(target) and not JinLiao(target)  and targetClass==TARGET.PLAYER and near_zhiliao and not MyBuff[4052] and (not IsKeyDown("G") or not IsKeyDown("F")) then
-    s_util.Cast(3966,false)
-    s_Output("日劫减疗")
-end
+if not  s_util.GetTalentIndex(12)==2 then 
+	if s_util.GetTalentIndex(7)==4 and player.nSunPowerValue >0 and not JianLiao(target) and not JinLiao(target)  and targetClass==TARGET.PLAYER and near_zhiliao and not MyBuff[4052] and (not IsKeyDown("G") or not IsKeyDown("F")) then
+		s_util.Cast(3966,false)
+		s_Output("日劫减疗")
+	end
 
---日劫眩晕
-if player.nSunPowerValue >0 and not MianKong(target) and (not ChenMo(target) or ChenMo(target).nLeftTime<500) and (not XuanYun(target) or XuanYun(target).nLeftTime<500) and not SuoZu(target) and not DingShen(target) and not IsKeyDown("F") and targetClass==TARGET.PLAYER then
-    s_util.Cast(3966,false) 
-    s_Output("日劫眩晕")
+	--日劫眩晕
+	if player.nSunPowerValue >0 and not MianKong(target) and (not ChenMo(target) or ChenMo(target).nLeftTime<500) and (not XuanYun(target) or XuanYun(target).nLeftTime<500) and not SuoZu(target) and not DingShen(target) and not IsKeyDown("F") and targetClass==TARGET.PLAYER then
+		s_util.Cast(3966,false) 
+		s_Output("日劫眩晕")
+	end
 end
 
 --日大
-if distance< 6 and not JianShang(target) and s_util.GetSkillCD(18629) > 2 and player.bFightState then
+if distance< 6 then
     s_util.Cast(18626,false)
 end
 
@@ -370,7 +385,9 @@ if distance< 12 and not JianShang(target) and player.nMoonPowerValue >0 then
 end
 
 --破魔 
-s_util.Cast(3967,false)
+if player.nSunPowerValue >0 or player.nMoonPowerValue >0 then
+    s_util.Cast(3967,false)
+end
 
 --驱夜
 if CurrentMoon < 100 and CurrentSun < 100 then

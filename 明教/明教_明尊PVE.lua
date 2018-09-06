@@ -203,8 +203,8 @@ if target and IsEnemy(player.dwID, target.dwID) and Auto_Move then
     --调整面向
     s_util.TurnTo(target.nX,target.nY) 
 
-    if distance > 8 and player.bFightState then if s_util.CastSkill(3970,false) then return end end --幻光
-    if distance > 8 and player.bFightState then if s_util.CastSkill(18633,false) then return end end --幻光
+    if distance > 8 and player.bFightState then if s_util.Cast(3970,false) then return end end --幻光
+    if distance > 8 and player.bFightState then if s_util.Cast(18633,false) then return end end --幻光
 
     --追击
     if not IsKeyDown("W") then
@@ -232,58 +232,58 @@ if MyBuff[4101] then s_util.CancelBuff(4101) end  --天策引羌笛
 
 --戒火斩
 if Auto_Jiehuo and (not TargetBuff[4058] or TargetBuff[4058].nLeftTime < 1) then
-	if s_util.CastSkill(3980,false) then return end
+	if s_util.Cast(3980,false) then return end
 end
 
 --满灵前使用心火叹
 if player.nSunPowerValue > 0 or player.nMoonPowerValue > 0 or MyBuff[9909] and MyBuff[9909].nLeftTime < 12.97 and player.nCurrentSunEnergy > player.nCurrentMoonEnergy then
-    if s_util.CastSkill(14922,false) then return end
+    if s_util.Cast(14922,false) then return end
 end
 
 --按下F切换为破魔循环
 if Mode_FullPow==1 then --满灵双劫
     --生死劫
-    if s_util.CastSkill(3966,false) then return end
+    if s_util.Cast(3966,false) then return end
 elseif Mode_FullPow==2 then --满灵双破
     --破魔
-    if s_util.CastSkill(3967,false) then return end
+    if s_util.Cast(3967,false) then return end
 elseif Mode_FullPow==3 then --月劫日破
     if player.nSunPowerValue > 0 then
-        if s_util.CastSkill(3967,false) then return end
+        if s_util.Cast(3967,false) then return end
     end
     if player.nMoonPowerValue > 0 then
-        if s_util.CastSkill(3966,false) then return end
+        if s_util.Cast(3966,false) then return end
     end
 elseif Mode_FullPow==4 then --日劫月破
     if player.nMoonPowerValue > 0 then
-        if s_util.CastSkill(3967,false) then return end
+        if s_util.Cast(3967,false) then return end
     end
     if player.nSunPowerValue > 0 then
-        if s_util.CastSkill(3966,false) then return end
+        if s_util.Cast(3966,false) then return end
     end
 end
 
 --慈悲愿
 if Auto_Cibei then
-    if s_util.CastSkill(3982,false) then return end
+    if s_util.Cast(3982,false) then return end
 end
 
 --银月斩优先月循环上仇
 if CurrentMoon >= CurrentSun and CurrentMoon < 61  then
-    if  s_util.CastSkill(3960,false)  then return end
+    if  s_util.Cast(3960,false)  then return end
 end
 
 -- 烈日斩，日灵>月灵时释放
 if CurrentSun > CurrentMoon and CurrentSun < 61 then
-    if  s_util.CastSkill(3963,false)  then return end
+    if  s_util.Cast(3963,false)  then return end
 end
 
 -- 日灵大于等于月灵且不满灵时打赤日轮
 if CurrentSun >= CurrentMoon and CurrentSun < 100 then
-    if  s_util.CastSkill(3962,false)  then return end
+    if  s_util.Cast(3962,false)  then return end
 end
 
 --月灵大于日灵且不满灵时打幽月轮
 if CurrentSun < CurrentMoon and CurrentMoon < 100 then
-    if s_util.CastSkill(3959,false) then return end
+    if s_util.Cast(3959,false) then return end
 end
